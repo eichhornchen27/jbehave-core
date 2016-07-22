@@ -5,9 +5,13 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class StoryDuration {
 
+    private static final int CANCEL_TIMEOUT_RATIO = 20;
+
 	private long startedAtMillis;
     private long durationInMillis;
     private final long timeoutInSecs;
+    // Timeout to let jbehave perform cancel actions
+    private final long cancelTimeoutInSecs;
 
     public StoryDuration(long timeoutInSecs) {
         this(System.currentTimeMillis(), timeoutInSecs);
@@ -16,6 +20,7 @@ public class StoryDuration {
     public StoryDuration(long startedAtMillis, long timeoutInSecs) {
         this.startedAtMillis = startedAtMillis;
         this.timeoutInSecs = timeoutInSecs;
+        cancelTimeoutInSecs = timeoutInSecs / CANCEL_TIMEOUT_RATIO;
     }
 
     public long getDurationInSecs() {
@@ -43,6 +48,10 @@ public class StoryDuration {
 	public boolean timedOut() {
 		return timeoutInSecs != 0 && getDurationInSecs() > timeoutInSecs;
 	}
+
+    public boolean cancelTimedOut() {
+        return cancelTimeoutInSecs == 0 || getDurationInSecs() > timeoutInSecs + cancelTimeoutInSecs;
+    }
 
 	@Override
 	public String toString() {
