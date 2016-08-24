@@ -13,9 +13,11 @@ import static org.hamcrest.Matchers.nullValue;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.jbehave.core.annotations.AfterScenario.Outcome;
 import org.jbehave.core.annotations.Scope;
@@ -986,6 +988,28 @@ public class RegexStoryParserBehaviour {
     @Test
     public void shouldParseStoryWithVeryLongTables() {
         ensureThatScenarioCanBeParsed(aScenarioWithVeryLongTables(2000));
+    }
+
+    @Test
+    public void shouldParseStoryWithSkippedSteps(){
+        String wholeStory = "Scenario: A scenario with skipped steps" + NL + NL +
+                "Given 1st step" + NL +
+                "When I perform the 2nd step with the table:" + NL +
+                "|key|" + NL +
+                "|value 1|" + NL +
+                "|value 2|" + NL +
+                "Then I perform 3rd step" + NL +
+                "Then I perform the last step with table" + NL +
+                "|key|" + NL +
+                "|value 1|";
+        RegexStoryParser parser = new RegexStoryParser();
+        parser.setStepSkipPattern(Pattern.compile("\\d[stndr]{2}"));
+        Story story = parser.parseStory(wholeStory);
+        assertThat(story.getScenarios().get(0).getSteps(), equalTo(Collections.singletonList(
+                "Then I perform the last step with table" + NL +
+                        "|key|" + NL +
+                        "|value 1|"
+        )));
     }
 
     private String aScenarioWithVeryLongTables(int numberOfLines) {
