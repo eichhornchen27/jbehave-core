@@ -315,7 +315,8 @@ public class RegexStoryParser extends AbstractRegexParser implements StoryParser
 
     private String findScenarioTitle(String scenarioAsText) {
         Matcher findingTitle = findingScenarioTitle().matcher(scenarioAsText);
-        return findingTitle.find() ? findingTitle.group(1).trim() : NONE;
+        return findingTitle.find() ? findingTitle.group(1).trim()
+                : StringUtils.substringAfter(scenarioAsText, keywords().scenario() + "\n").trim();
     }
 
     private Meta findScenarioMeta(String scenarioAsText) {
@@ -399,7 +400,7 @@ public class RegexStoryParser extends AbstractRegexParser implements StoryParser
 
     private Pattern findingScenarioMeta() {
         String startingWords = concatenateInitialStartingWords();
-        return compile(".*" + keywords().meta() + "(.*?)\\s*(" + keywords().givenStories() + "|" + startingWords + ").*",
+        return compile(".*" + keywords().meta() + "(.*?)\\s*(" + keywords().givenStories() + "|" + startingWords + "|$).*",
                 DOTALL);
     }
 

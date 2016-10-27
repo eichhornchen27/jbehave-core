@@ -639,6 +639,38 @@ public class RegexStoryParserBehaviour {
     }
 
     @Test
+    public void shouldParseWithEmptyScenarios() {
+        String wholeStory = "Scenario: the first scenario " + NL + NL +
+                "Given my scenario" + NL + NL +
+                "Scenario: the second scenario"+ NL + NL +
+                "Scenario: the third scenario";
+        Story story = parser.parseStory(wholeStory, storyPath);
+
+        assertThat(story.getScenarios().get(0).getTitle(), equalTo("the first scenario"));
+        assertThat(story.getScenarios().get(0).getSteps(), equalTo(asList("Given my scenario")));
+        assertThat(story.getScenarios().get(1).getTitle(), equalTo("the second scenario"));
+        assertThat(story.getScenarios().get(1).getSteps().size(), equalTo(0));
+        assertThat(story.getScenarios().get(2).getTitle(), equalTo("the third scenario"));
+        assertThat(story.getScenarios().get(2).getSteps().size(), equalTo(0));
+    }
+
+    @Test
+    public void shouldParseMetaWithEmptyScenarios() {
+        String wholeStory = "Scenario: the first scenario " + NL + NL +
+                "Meta: @layout web" + NL +
+                "Given my scenario" + NL + NL +
+                "Scenario: the second scenario"+ NL + NL +
+                "Scenario: the third scenario"+ NL+ NL +
+                "Meta: @layout mobile" + NL+ NL;
+        Story story = parser.parseStory(
+                wholeStory, storyPath);
+        assertThat(story.getPath(), equalTo(storyPath));
+        assertThat(story.getScenarios().get(0).getMeta().getProperty("layout"), equalTo("web"));
+        assertThat(story.getScenarios().get(1).getMeta().getPropertyNames().size(), is(equalTo(0)));
+        assertThat(story.getScenarios().get(2).getMeta().getProperty("layout"), equalTo("mobile"));
+    }
+
+    @Test
     public void shouldParseStoryWithDescriptionAndNarrative() {
         String wholeStory = "Story: This is free-text description"+ NL +
                 "Narrative: This bit of text is ignored" + NL +
