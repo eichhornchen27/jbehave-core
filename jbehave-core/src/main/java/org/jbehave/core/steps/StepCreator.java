@@ -426,7 +426,7 @@ public class StepCreator {
                 }
             }
 
-            if (delimitedNamedParameters || isTableName(namedParameters, name)) {
+            if (delimitedNamedParameters || (parameter == null && isTableName(namedParameters, name))) {
                 parameter = namedParameter(namedParameters, name);
                 if (parameter != null) {
                     monitorUsingTableNameForParameter(name, position, annotated); 

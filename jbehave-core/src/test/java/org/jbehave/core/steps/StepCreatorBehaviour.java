@@ -501,7 +501,7 @@ public class StepCreatorBehaviour {
         Map<String, String> params = new HashMap<String, String>();
         params.put("t", "distinct theme");
         params.put("v", "distinct variant");
-        when(stepMatcher.parameterNames()).thenReturn(params.keySet().toArray(new String[params.size()]));
+        when(stepMatcher.parameterNames()).thenReturn(new String[]{"theme", "variant"});
         when(stepMatcher.parameter(1)).thenReturn("<t>");
         when(stepMatcher.parameter(2)).thenReturn("<v>");
 
@@ -520,7 +520,7 @@ public class StepCreatorBehaviour {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void shouldMatchParametersByNamedAnnotationsIfConfiguredToNotUseDelimiterNamedParamters() throws Exception {
+    public void shouldNotMatchParametersByNamedAnnotationsIfConfiguredToNotUseDelimiterNamedParamters() throws Exception {
 
         // Given
         SomeSteps stepsInstance = new SomeSteps();
@@ -531,7 +531,7 @@ public class StepCreatorBehaviour {
         Map<String, String> params = new HashMap<String, String>();
         params.put("theme", "a theme");
         params.put("variant", "a variant");
-        when(stepMatcher.parameterNames()).thenReturn(params.keySet().toArray(new String[params.size()]));
+        when(stepMatcher.parameterNames()).thenReturn(new String[]{"theme", "variant"});
         when(stepMatcher.parameter(1)).thenReturn("<t>");
         when(stepMatcher.parameter(2)).thenReturn("<v>");
 
@@ -542,8 +542,8 @@ public class StepCreatorBehaviour {
 
         // Then
         Map<String, String> results = (Map<String, String>) stepsInstance.args;
-        assertThat(results.get("theme"), equalTo("a theme"));
-        assertThat(results.get("variant"), equalTo("a variant"));
+        assertThat(results.get("theme"), equalTo("<t>"));
+        assertThat(results.get("variant"), equalTo("<v>"));
     }
 
     @Test
