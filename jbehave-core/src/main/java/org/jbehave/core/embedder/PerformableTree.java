@@ -124,7 +124,12 @@ public class PerformableTree {
 
         // determine if before and after scenario steps should be run
         boolean runBeforeAndAfterScenarioSteps = shouldRunBeforeOrAfterScenarioSteps(context);
-
+        for (Map<String, String> storyExamplesTableRow : storyExamplesTableRows) {
+            for (Map.Entry<String, String> entry : storyExamplesTableRow.entrySet()) {
+                entry.setValue((String)
+                        context.configuration().parameterConverters().convert(entry.getValue(), String.class));
+            }
+        }
         for (Map<String, String> storyExamplesTableRow : storyExamplesTableRows) {
             for (Scenario scenario : story.getScenarios()) {
                 Map<String, String> scenarioParameters = new HashMap<String, String>(storyParameters);
@@ -159,7 +164,12 @@ public class PerformableTree {
                 ExamplesTable table = scenario.getExamplesTable();
                 for (Map<String, String> scenarioParameters : table.getRows()) {
                     Map<String, String> parameters = new HashMap<String, String>(storyExamplesTableRow);
-                    parameters.putAll(scenarioParameters);
+                    Map<String, String> scenarioParametersCopy = new HashMap<String, String>(scenarioParameters);
+                    for (Map.Entry<String, String> entry : scenarioParametersCopy.entrySet()) {
+                        entry.setValue((String)
+                                context.configuration().parameterConverters().convert(entry.getValue(), String.class));
+                    }
+                    parameters.putAll(scenarioParametersCopy);
                     addExampleScenario(context, scenario, performableScenario, lifecycle, storyAndScenarioMeta,
                             parameters);
                 }
