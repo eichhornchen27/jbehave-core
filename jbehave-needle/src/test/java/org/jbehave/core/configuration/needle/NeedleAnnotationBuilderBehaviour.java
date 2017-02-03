@@ -50,7 +50,7 @@ public class NeedleAnnotationBuilderBehaviour {
     private void assertThatCustomObjectIsConverted(
             final ParameterConverters parameterConverters) {
         assertThat(((CustomObject) parameterConverters.convert("value",
-                CustomObject.class)).toString(), equalTo(new CustomObject(
+                CustomObject.class, null)).toString(), equalTo(new CustomObject(
                 "value").toString()));
     }
 
@@ -59,7 +59,7 @@ public class NeedleAnnotationBuilderBehaviour {
             final DateFormat dateFormat) {
         final String date = "2010-10-10";
         try {
-            assertThat((Date) parameterConverters.convert(date, Date.class),
+            assertThat((Date) parameterConverters.convert(date, Date.class, null),
                     equalTo(dateFormat.parse(date)));
         } catch (final ParseException e) {
             throw new AssertionError();

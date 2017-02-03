@@ -47,7 +47,7 @@ public class ConvertedParameters implements Parameters {
 
     @SuppressWarnings("unchecked")
     private <T> T convert(String value, Type type) {
-        return (T) parameterConverters.convert(value, type);
+        return (T) parameterConverters.convert(value, type, null);
     }
 
     private String valueFor(String name) {

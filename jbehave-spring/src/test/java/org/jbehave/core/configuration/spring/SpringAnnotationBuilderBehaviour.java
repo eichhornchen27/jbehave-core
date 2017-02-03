@@ -75,7 +75,7 @@ public class SpringAnnotationBuilderBehaviour {
 			ParameterConverters parameterConverters, DateFormat dateFormat) {
 		String date = "2010-10-10";
 		try {
-			assertThat((Date) parameterConverters.convert(date, Date.class),
+			assertThat((Date) parameterConverters.convert(date, Date.class, null),
 					equalTo(dateFormat.parse(date)));
 		} catch (ParseException e) {
 			throw new AssertionError();

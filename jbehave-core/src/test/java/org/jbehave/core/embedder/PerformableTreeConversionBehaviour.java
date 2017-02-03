@@ -141,7 +141,7 @@ public class PerformableTreeConversionBehaviour {
 
     private class SharpParameterConverters extends ParameterConverters{
 
-        public Object convert(String value, Type type) {
+        public Object convert(String value, Type type, Story story) {
             if(type == String.class){
 
                 return value.replace("#", value.substring(1).toLowerCase());

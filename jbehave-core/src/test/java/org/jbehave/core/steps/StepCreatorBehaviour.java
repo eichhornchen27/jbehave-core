@@ -8,6 +8,7 @@ import static org.jbehave.core.steps.StepCreator.PARAMETER_VALUE_END;
 import static org.jbehave.core.steps.StepCreator.PARAMETER_VALUE_START;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,7 @@ import org.jbehave.core.failures.UUIDExceptionWrapper;
 import org.jbehave.core.io.LoadFromClasspath;
 import org.jbehave.core.model.Meta;
 import org.jbehave.core.model.TableTransformers;
+import org.jbehave.core.model.Story;
 import org.jbehave.core.parsers.RegexStepMatcher;
 import org.jbehave.core.parsers.StepMatcher;
 import org.jbehave.core.reporters.StoryReporter;
@@ -59,8 +61,8 @@ public class StepCreatorBehaviour {
 
     @Before
     public void setUp() throws Exception {
-        when(parameterConverters.convert("shopping cart", String.class)).thenReturn("shopping cart");
-        when(parameterConverters.convert("book", String.class)).thenReturn("book");
+        when(parameterConverters.convert("shopping cart", String.class, null)).thenReturn("shopping cart");
+        when(parameterConverters.convert("book", String.class, null)).thenReturn("book");
         when(parameterConverters.newInstanceAdding(Matchers.<ParameterConverters.ParameterConverter> anyObject()))
                 .thenReturn(parameterConverters);
     }
@@ -420,7 +422,7 @@ public class StepCreatorBehaviour {
 
         // When
         Date aDate = new Date();
-        when(parameterConverters.convert(anyString(), eq(Date.class))).thenReturn(aDate);
+        when(parameterConverters.convert(anyString(), eq(Date.class), (Story) isNull())).thenReturn(aDate);
         Step stepWithMeta = stepCreator.createBeforeOrAfterStep(SomeSteps.methodFor("aMethodWithDate"), new Meta());
         StepResult stepResult = stepWithMeta.perform(null);
 

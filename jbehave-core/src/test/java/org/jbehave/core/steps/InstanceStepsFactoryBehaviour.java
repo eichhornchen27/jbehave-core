@@ -26,7 +26,7 @@ public class InstanceStepsFactoryBehaviour {
         assertThat(candidateSteps.size(), equalTo(1));
         assertThat(candidateSteps.get(0), instanceOf(Steps.class));
         ParameterConverters converters = candidateSteps.get(0).configuration().parameterConverters();
-        assertThat((String)converters.convert("value", String.class), equalTo("valueConverted"));
+        assertThat((String)converters.convert("value", String.class, null), equalTo("valueConverted"));
     }
 
     @Test

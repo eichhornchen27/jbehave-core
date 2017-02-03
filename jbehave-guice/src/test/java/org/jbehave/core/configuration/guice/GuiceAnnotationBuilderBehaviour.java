@@ -115,14 +115,14 @@ public class GuiceAnnotationBuilderBehaviour {
     }
 
     private void assertThatCustomObjectIsConverted(ParameterConverters parameterConverters) {
-        assertThat(((CustomObject) parameterConverters.convert("value", CustomObject.class)).toString(),
+        assertThat(((CustomObject) parameterConverters.convert("value", CustomObject.class, null)).toString(),
                 equalTo(new CustomObject("value").toString()));
     }
 
     private void assertThatDateIsConvertedWithFormat(ParameterConverters parameterConverters, DateFormat dateFormat) {
         String date = "2010-10-10";
         try {
-            assertThat((Date) parameterConverters.convert(date, Date.class), equalTo(dateFormat.parse(date)));
+            assertThat((Date) parameterConverters.convert(date, Date.class, null), equalTo(dateFormat.parse(date)));
         } catch (ParseException e) {
             throw new AssertionError();
         }

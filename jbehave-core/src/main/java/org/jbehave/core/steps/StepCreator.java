@@ -420,7 +420,7 @@ public class StepCreator {
             if (names[position].fromContext) {
                 parameters[position] = stepsContext.get(valuesAsString[position]);
             } else {
-                parameters[position] = parameterConverters.convert(valuesAsString[position], types[position]);
+                parameters[position] = parameterConverters.convert(valuesAsString[position], types[position], null);
             }
         }
         return parameters;
@@ -1018,7 +1018,8 @@ public class StepCreator {
         private Object[] parameterValuesFrom(Meta meta) {
             Object[] values = new Object[parameterTypes.length];
             for (Parameter parameter : methodParameters()) {
-                values[parameter.position] = parameterConverters.convert(parameter.valueFrom(meta), parameter.type);
+                values[parameter.position] = parameterConverters.convert(parameter.valueFrom(meta), parameter.type,
+                        null);
             }
             return values;
         }
