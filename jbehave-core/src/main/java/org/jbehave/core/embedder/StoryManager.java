@@ -91,7 +91,7 @@ public class StoryManager {
 		for (String storyPath : storyPaths) {
 			stories.add(storyOfPath(storyPath));
 		}
-		return stories;
+        return StorySplitter.splitStories(stories, configuration.isParallelStoryExampleTableEnabled());
 	}
 	
 	public void runStories(List<Story> stories, MetaFilter filter,

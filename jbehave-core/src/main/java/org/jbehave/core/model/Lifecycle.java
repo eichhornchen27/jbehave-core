@@ -68,6 +68,10 @@ public class Lifecycle {
         return beforeSteps;
     }
 
+    public List<Steps> getBefore() {
+        return before;
+    }
+
     public boolean hasAfterSteps() {
         return !getAfterSteps(Scope.SCENARIO).isEmpty() || !getAfterSteps(Scope.STORY).isEmpty() ;
     }
@@ -83,6 +87,10 @@ public class Lifecycle {
             afterSteps.addAll(stepsByScope(steps, scope));
         }
         return afterSteps;
+    }
+
+    public List<Steps> getAfter() {
+        return after;
     }
 
     public Set<Outcome> getOutcomes() {
