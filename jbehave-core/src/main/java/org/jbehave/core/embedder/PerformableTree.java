@@ -161,13 +161,18 @@ public class PerformableTree {
             if (isParameterisedByExamples(scenario)) {
                 ExamplesTable table = scenario.getExamplesTable();
                 for (Map<String, String> scenarioParameters : table.getRows()) {
-                    Map<String, String> parameters = new HashMap<String, String>(storyExamplesTableRow);
                     Map<String, String> scenarioParametersCopy = new HashMap<String, String>(scenarioParameters);
                     for (Map.Entry<String, String> entry : scenarioParametersCopy.entrySet()) {
                         entry.setValue((String) context.configuration().parameterConverters().convert(entry.getValue(),
                                 String.class, story));
                     }
-                    parameters.putAll(scenarioParametersCopy);
+                    Map<String, String> parameters = new LinkedHashMap<String, String>(scenarioParametersCopy);
+                    for(Map.Entry<String, String> storyExamplesTableRowEntry: storyExamplesTableRow.entrySet()) {
+                        String key = storyExamplesTableRowEntry.getKey();
+                        if(!parameters.containsKey(key)) {
+                            parameters.put(key, storyExamplesTableRowEntry.getValue());
+                        }
+                    }
                     addExampleScenario(context, scenario, performableScenario, lifecycle, storyAndScenarioMeta,
                             parameters);
                 }
