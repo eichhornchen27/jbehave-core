@@ -3,6 +3,7 @@ package org.jbehave.core.embedder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbehave.core.model.FailedStory;
 import org.jbehave.core.model.Meta;
 import org.jbehave.core.model.Scenario;
 import org.jbehave.core.model.Story;
@@ -11,6 +12,7 @@ public class FilteredStory {
 
 	private boolean alwaysAllowed;
     private boolean storyAllowed;
+    private boolean storyFailed;
     private Map<Scenario, Boolean> scenariosAllowed;
 
     public FilteredStory(MetaFilter filter, Story story, StoryControls storyControls){
@@ -18,6 +20,9 @@ public class FilteredStory {
     }
     
     public FilteredStory(MetaFilter filter, Story story, StoryControls storyControls, boolean givenStory) {
+    	if (story instanceof FailedStory) {
+    		storyFailed = true;
+    	}
     	if (  givenStory && storyControls.ignoreMetaFiltersIfGivenStory() ){
     		alwaysAllowed = true;
     	}
@@ -41,6 +46,7 @@ public class FilteredStory {
     }
 
     public boolean allowed() {
+    	if ( storyFailed ) return false;
     	if ( alwaysAllowed ) return true;
         return storyAllowed || scenariosAllowed.values().contains(true);
     }
