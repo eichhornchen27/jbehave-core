@@ -587,6 +587,7 @@ public class RegexStoryParserBehaviour {
         parser.setStorySkipMeta(Meta.createMeta("@skip", keywords));
         Story story = parser.parseStory(wholeStory, storyPath);
         assertTrue(story.getMeta().hasProperty("skip"));
+        assertTrue(story.getLifecycle().isEmpty());
     }
 
     @Test
