@@ -28,7 +28,7 @@ public class StorySplitterBehaviour {
     public void testSplitStoriesWithStoryTable() {
         List<Story> originStories = getOriginStories((EXAMPLE_TABLE_HEADER
                 + EXAMPLE_TABLE_FIRST_LINE + EXAMPLE_TABLE_SECOND_LINE));
-        List<Story> splitStories = StorySplitter.splitStories(originStories, true);
+        List<Story> splitStories = StorySplitter.splitStories(originStories);
         assertEquals(2, splitStories.size());
         Story storyFirst = splitStories.get(0);
         Story storySecond = splitStories.get(1);
@@ -45,7 +45,7 @@ public class StorySplitterBehaviour {
     @Test
     public void testSplitStoriesWithSingleStoryTable() {
         List<Story> originStories = getOriginStories(EXAMPLE_TABLE_HEADER + EXAMPLE_TABLE_SECOND_LINE);
-        List<Story> splitStories = StorySplitter.splitStories(originStories, true);
+        List<Story> splitStories = StorySplitter.splitStories(originStories);
         assertEquals(1, splitStories.size());
         Story storyFirst = splitStories.get(0);
         assertEquals(String.format(STORY_PATH_TEMPLATE, EMPTY), storyFirst.getPath());
@@ -56,7 +56,7 @@ public class StorySplitterBehaviour {
     @Test
     public void testSplitStoriesWithEmptyStoryTable() {
         List<Story> originStories = getOriginStories(EXAMPLE_TABLE_HEADER);
-        List<Story> splitStories = StorySplitter.splitStories(originStories, true);
+        List<Story> splitStories = StorySplitter.splitStories(originStories);
         assertEquals(1, splitStories.size());
         assertEquals(originStories.get(0), splitStories.get(0));
     }
@@ -66,16 +66,9 @@ public class StorySplitterBehaviour {
         Story originStory = new Story(EMPTY_STORY, EMPTY, Lifecycle.EMPTY);
         List<Story> originStories = new ArrayList<Story>();
         originStories.add(originStory);
-        List<Story> splitStories = StorySplitter.splitStories(originStories, true);
+        List<Story> splitStories = StorySplitter.splitStories(originStories);
         assertEquals(1, splitStories.size());
         assertEquals(originStories.get(0), splitStories.get(0));
-    }
-
-    @Test
-    public void testSplitStoriesInNonParallelMode() {
-        List<Story> originStories = getOriginStories(EXAMPLE_TABLE_HEADER + EXAMPLE_TABLE_SECOND_LINE);
-        List<Story> splitStories = StorySplitter.splitStories(originStories, false);
-        assertEquals(originStories, splitStories);
     }
 
     private List<Story> getOriginStories(String table) {

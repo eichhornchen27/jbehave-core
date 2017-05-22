@@ -12,10 +12,7 @@ import org.jbehave.core.model.Story;
  * @author Aliaksandr_Tsymbal.
  */
 public class StorySplitter {
-    public static List<Story> splitStories(List<Story> stories, boolean parallelStoryExampleTableEnabled) {
-        if(!parallelStoryExampleTableEnabled) {
-            return stories;
-        }
+    public static List<Story> splitStories(List<Story> stories) {
         List<Story> splitStories = new ArrayList<Story>();
         for (Story story: stories) {
             if (story.getLifecycle().getExamplesTable().getRowCount() > 1) {
