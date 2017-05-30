@@ -584,7 +584,7 @@ public class RegexStoryParserBehaviour {
                 "Scenario:" + NL +
                 "Given a scenario";
         LocalizedKeywords keywords = new LocalizedKeywords();
-        parser.setStorySkipMeta(Meta.createMeta("@skip", keywords));
+        parser.setSkipMeta(Meta.createMeta("@skip", keywords));
         Story story = parser.parseStory(wholeStory, storyPath);
         assertTrue(story.getMeta().hasProperty("skip"));
         assertTrue(story.getLifecycle().isEmpty());
@@ -601,12 +601,89 @@ public class RegexStoryParserBehaviour {
                 "parameters: two, three" + NL +
                 "Scenario:" + NL +
                 "Given a scenario";
+        testParseStoryWithParametrisedExamplesWithDifferentAmount(wholeStory);
+    }
+
+    @Test
+    public void shouldParseStoryWithParametrisedExamplesInScenario() {
+        String wholeStory = "Scenario:" + NL +
+                "Given a scenario" + NL +
+                "Examples:" + NL +
+                "table:" + NL +
+                "|one|two|three|" + NL +
+                "|11|12|13|" + NL +
+                "|21|22|23|" + NL +
+                "parameters: one, two";
+        String expectedExamplesTable = "|one|two|" + NL +
+                "|11|12|" + NL +
+                "|21|22|" + NL;
+        testParseStoryWithParametrisedExamplesInScenario(wholeStory, expectedExamplesTable);
+    }
+
+    @Test
+    public void shouldParseStoryWithParametrisedExamplesWithSkippedCellsInScenario() {
+        String wholeStory = "Scenario:" + NL +
+                "Given a scenario" + NL +
+                "Examples:" + NL +
+                "table:" + NL +
+                "|one|two|three|" + NL +
+                "|11|12|13|" + NL +
+                "|21|${skip}|${skip}|" + NL +
+                "parameters: two, three";
+        String expectedExamplesTable = "|two|three|" + NL +
+                "|12|13|" + NL;
+        testParseStoryWithParametrisedExamplesInScenario(wholeStory, expectedExamplesTable);
+    }
+
+    private void testParseStoryWithParametrisedExamplesInScenario(String wholeStory, String expectedExamplesTable) {
         Story story = parser.parseStory(wholeStory, storyPath);
-        assertTrue(story instanceof FailedStory);
-        assertEquals(storyPath, story.getPath());
+        List<Scenario> scenarios = story.getScenarios();
+        assertEquals("Amount of parsed scenarios", 1, scenarios.size());
+        Scenario scenario = scenarios.get(0);
+        ExamplesTable table = scenario.getExamplesTable();
+        assertEquals("Parsed Examples Table", expectedExamplesTable, table.asString());
+    }
+
+    @Test
+    public void shouldParseStoryWithParametrisedExamplesWithAllSkippedCellsInScenario() {
+        String wholeStory = "Scenario:" + NL +
+                "Given a scenario" + NL +
+                "Examples:" + NL +
+                "table:" + NL +
+                "|one|two|three|" + NL +
+                "|11|12|${skip}|" + NL +
+                "|21|${skip}|${skip}|" + NL +
+                "parameters: three";
+        LocalizedKeywords keywords = new LocalizedKeywords();
+        parser.setSkipMeta(Meta.createMeta("@skip", keywords));
+        Story story = parser.parseStory(wholeStory, storyPath);
+        List<Scenario> scenarios = story.getScenarios();
+        assertEquals("Amount of parsed scenarios", 1, scenarios.size());
+        Scenario scenario = scenarios.get(0);
+        assertTrue("Parsed scenario has @skip meta", scenario.getMeta().hasProperty("skip"));
+        assertTrue("Parsed scenario has empty examples table", scenario.getExamplesTable().isEmpty());
+    }
+
+    @Test
+    public void shouldParseStoryWithParametrisedExamplesWithDifferentAmountInScenario() {
+        String wholeStory = "Scenario:" + NL +
+                "Given a scenario" + NL +
+                "Examples:" + NL +
+                "table:" + NL +
+                "|one|two|three|" + NL +
+                "|11|12|${skip}|" + NL +
+                "|21|${skip}|${skip}|" + NL +
+                "parameters: two, three";
+        testParseStoryWithParametrisedExamplesWithDifferentAmount(wholeStory);
+    }
+
+    private void testParseStoryWithParametrisedExamplesWithDifferentAmount(String wholeStory) {
+        Story story = parser.parseStory(wholeStory, storyPath);
+        assertTrue("Parsed story is instance of FailedStory", story instanceof FailedStory);
+        assertEquals("Story path equals", storyPath, story.getPath());
         Throwable cause = ((FailedStory) story).getCause().getCause();
         assertTrue(cause instanceof ExamplesCutException);
-        assertEquals("Story refers to variables with different number of examples at story level", cause.getMessage());
+        assertEquals("Story or scenario refer to variables with different number of examples", cause.getMessage());
         assertEquals("Exception at story parsing", ((FailedStory) story).getStage());
         assertEquals("Exception at building Examples Table", ((FailedStory) story).getSubStage());
     }

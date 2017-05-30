@@ -45,7 +45,7 @@ public class RegexStoryParser extends AbstractRegexParser implements StoryParser
     public static final ResourceLoader DEFAULT_RESOURCE_LOADER = new LoadFromClasspath();
     public static final TableTransformers DEFAULT_TABLE_TRANSFORMERS = new TableTransformers();
     private final ExamplesTableFactory tableFactory;
-    private Meta storySkipMeta;
+    private Meta skipMeta;
     private String skippedExample;
 
     public RegexStoryParser() {
@@ -89,26 +89,24 @@ public class RegexStoryParser extends AbstractRegexParser implements StoryParser
         Meta meta = parseStoryMetaFrom(storyAsText);
         Narrative narrative = parseNarrativeFrom(storyAsText);
         GivenStories givenStories = parseGivenStories(storyAsText);
-        Lifecycle lifecycle = null;
         try {
-            lifecycle = parseLifecycle(storyAsText);
+            Lifecycle lifecycle = parseLifecycle(storyAsText);
+            if (lifecycle == null) {
+                meta = meta.inheritFrom(skipMeta);
+                lifecycle = Lifecycle.EMPTY;
+            } else {
+                ExamplesTable storyExamplesTable = lifecycle.getExamplesTable();
+                if (!storyExamplesTable.isEmpty()) {
+                    useExamplesTableForGivenStories(givenStories, storyExamplesTable);
+                }
+            }
+            List<Scenario> scenarios = parseScenariosFrom(storyAsText);
+            Story story = new Story(storyPath, description, meta, narrative, givenStories, lifecycle, scenarios);
+            return nameStory(story, storyPath);
         } catch (ExamplesCutException ex) {
             return nameStory(new FailedStory(storyPath, meta, "Exception at story parsing", "Exception at building " +
                     "Examples Table", ex), storyPath);
         }
-        if (lifecycle == null) {
-            meta = meta.inheritFrom(storySkipMeta);
-            lifecycle = Lifecycle.EMPTY;
-        }
-        else {
-            ExamplesTable storyExamplesTable = lifecycle.getExamplesTable();
-            if (!storyExamplesTable.isEmpty()) {
-                useExamplesTableForGivenStories(givenStories, storyExamplesTable);
-            }
-        }
-        List<Scenario> scenarios = parseScenariosFrom(storyAsText);
-        Story story = new Story(storyPath, description, meta, narrative, givenStories, lifecycle, scenarios);
-        return nameStory(story, storyPath);
     }
 
     private Story nameStory(Story story, String storyPath) {
@@ -338,6 +336,10 @@ public class RegexStoryParser extends AbstractRegexParser implements StoryParser
         scenarioWithoutTitle = startingWithNL(scenarioWithoutTitle);
         Meta meta = findScenarioMeta(scenarioWithoutTitle);
         ExamplesTable examplesTable = findExamplesTable(scenarioWithoutTitle);
+        if(examplesTable == null) {
+            examplesTable = ExamplesTable.EMPTY;
+            meta = meta.inheritFrom(skipMeta);
+        }
         GivenStories givenStories = findScenarioGivenStories(scenarioWithoutTitle);
         useExamplesTableForGivenStories(givenStories, examplesTable);
         List<String> steps = findSteps(scenarioWithoutTitle);
@@ -414,8 +416,7 @@ public class RegexStoryParser extends AbstractRegexParser implements StoryParser
     private void checkTableAlignment(String skipKeyword, Map<String, String> examplesTableRow) {
         for (Map.Entry<String, String> entry : examplesTableRow.entrySet()) {
             if (!skipKeyword.equals(entry.getValue())) {
-                throw new ExamplesCutException(
-                        "Story refers to variables with different number of examples at story level");
+                throw new ExamplesCutException("Story or scenario refer to variables with different number of examples");
             }
         }
     }
@@ -503,8 +504,8 @@ public class RegexStoryParser extends AbstractRegexParser implements StoryParser
         return compile("\\n" + keywords().examplesTable() + "\\s*(.*)", DOTALL);
     }
 
-    public void setStorySkipMeta(Meta storySkipMeta) {
-        this.storySkipMeta = storySkipMeta;
+    public void setSkipMeta(Meta skipMeta) {
+        this.skipMeta = skipMeta;
     }
 
     public void setSkippedExample(String skippedExample) {
