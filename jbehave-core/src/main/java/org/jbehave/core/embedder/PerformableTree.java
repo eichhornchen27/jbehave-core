@@ -95,7 +95,7 @@ public class PerformableTree {
                 addMetaParameters(givenStoryParameters, storyMeta);
                 if ( story.hasGivenStories() ) {
                     performableStory.addGivenStories(performableGivenStories(context, story.getGivenStories(),
-                            givenStoryParameters));
+                        givenStoryParameters, storyMeta));
                 }
             }
 
@@ -253,21 +253,24 @@ public class PerformableTree {
 		performableScenario.addBeforeSteps(context.lifecycleSteps(lifecycle, storyAndScenarioMeta, Stage.BEFORE));
 		addMetaParameters(parameters, storyAndScenarioMeta);
 		performableScenario.addGivenStories(performableGivenStories(context, scenario.getGivenStories(),
-		        parameters));
+		        parameters, storyAndScenarioMeta));
 		performableScenario.addSteps(context.scenarioSteps(scenario, parameters));
 		performableScenario.addAfterSteps(context.lifecycleSteps(lifecycle, storyAndScenarioMeta, Stage.AFTER));
 		performableScenario.addAfterSteps(context.beforeOrAfterScenarioSteps(storyAndScenarioMeta, Stage.AFTER,
                 ScenarioType.ANY));
 	}
 
-    private List<PerformableStory> performableGivenStories(RunContext context, GivenStories givenStories,
-            Map<String, String> parameters) {
+    private List<PerformableStory> performableGivenStories(RunContext context, GivenStories givenStories, Map<String,
+            String> parameters, Meta meta) {
         List<PerformableStory> stories = new ArrayList<>();
         if (givenStories.getPaths().size() > 0) {
             for (GivenStory givenStory : givenStories.getStories()) {
                 RunContext childContext = context.childContextFor(givenStory);
                 // run given story, using any parameters provided
                 Story story = storyOfPath(context.configuration(), childContext.path());
+                if (!meta.isEmpty()) {
+                    story = story.cloneWithMetaAndScenarios(story.getMeta().inheritFrom(meta), story.getScenarios());
+                }
                 if ( givenStory.hasAnchorParameters() ){
                     story = storyWithMatchingScenarios(story, givenStory.getAnchorParameters());
                 }
@@ -286,7 +289,7 @@ public class PerformableTree {
                 scenarios.add(scenario);
             }
         }
-        return story.cloneWithScenarios(scenarios);
+        return story.cloneWithMetaAndScenarios(story.getMeta(), scenarios);
     }
 
     private boolean matchesParameters(Scenario scenario, Map<String, String> parameters) {

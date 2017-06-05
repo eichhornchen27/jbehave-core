@@ -159,6 +159,10 @@ public class Story {
         return new Story(path, description, meta, narrative, givenStories, lifecycle, scenarios);
     }
 
+    public Story cloneWithMetaAndScenarios(Meta meta, List<Scenario> scenarios) {
+        return new Story(path, description, meta, narrative, givenStories, lifecycle, scenarios);
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
