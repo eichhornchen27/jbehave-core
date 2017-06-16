@@ -61,6 +61,8 @@ public class FilePrintStreamFactoryBehaviour {
 
     @Test
     public void shouldResolveOutputNameFromStoryLocationWithDefaultResolver() {
+        assertThatOutputNameIs("file:/C:/org/jbehave/examples/trader/stories/my_given.story",
+                "file.C.org.jbehave.examples.trader.stories.my_given.ext", null);
         assertThatOutputNameIs("org/jbehave/examples/trader/stories/my_given.story",
                 "org.jbehave.examples.trader.stories.my_given.ext", null);
         assertThatOutputNameIs("/org/jbehave/examples/trader/stories/my_given.story",
