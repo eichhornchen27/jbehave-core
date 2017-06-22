@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
+import org.hamcrest.CoreMatchers;
 import org.jbehave.core.io.InvalidStoryResource;
 import org.jbehave.core.io.google.LoadOdtFromGoogle;
 import org.jbehave.core.io.google.LoadOdtFromGoogle.GoogleAccessFailed;
@@ -55,7 +55,7 @@ public class GoogleOdtLoaderBehaviour {
             
         };
         InputStream resourceStream = storyLoader.resourceAsStream("a_story");
-        MatcherAssert.assertThat(resourceStream, Matchers.equalTo(inputStream));
+        MatcherAssert.assertThat(resourceStream, CoreMatchers.equalTo(inputStream));
     }
 
     @Test(expected = InvalidStoryResource.class)

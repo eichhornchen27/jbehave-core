@@ -1,6 +1,6 @@
 package org.jbehave.examples.gherkin.steps;
 
-import org.hamcrest.Matchers;
+import org.hamcrest.CoreMatchers;
 import org.jbehave.core.annotations.Given;
 import org.jbehave.core.annotations.Then;
 import org.jbehave.core.model.ExamplesTable;
@@ -26,7 +26,7 @@ public class GherkinSteps {
 		for ( Parameters row : table.getRowsAsParameters() ){
 			Integer wheels = row.valueAs("wheels", Integer.class);
 			Boolean canDriveWith = car.canDriveWith(wheels);
-			outcomes.addOutcome("wheels "+wheels, canDriveWith, Matchers.is(row.valueAs("can_drive", Boolean.class)));
+			outcomes.addOutcome("wheels "+wheels, canDriveWith, CoreMatchers.is(row.valueAs("can_drive", Boolean.class)));
 		}
 		outcomes.verify();
 	}

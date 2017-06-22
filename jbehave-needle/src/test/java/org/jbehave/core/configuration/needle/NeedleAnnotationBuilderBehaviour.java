@@ -1,10 +1,9 @@
 package org.jbehave.core.configuration.needle;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -187,7 +186,7 @@ public class NeedleAnnotationBuilderBehaviour {
         final ValueGetter getter = ((FooStepsWithDependency) ((Steps) buildCandidateSteps
                 .get(0)).instance()).getGetter();
         assertNotNull(getter);
-        assertThat((String) getter.getValue(), is(ValueGetter.VALUE));
+		assertThat((String) getter.getValue(), equalTo(ValueGetter.VALUE));
     }
 
     private void assertThatStepsInstancesAre(

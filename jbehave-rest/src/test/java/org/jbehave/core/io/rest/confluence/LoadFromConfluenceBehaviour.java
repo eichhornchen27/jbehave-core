@@ -1,7 +1,7 @@
 package org.jbehave.core.io.rest.confluence;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.stringContainsInOrder;
 
 import java.io.IOException;

@@ -3,7 +3,6 @@ package org.jbehave.core.steps.scala;
 import java.util.List;
 
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.jbehave.core.configuration.MostUsefulConfiguration;
 import org.jbehave.core.configuration.scala.ScalaContext;
 import org.jbehave.core.configuration.scala.ScalaContext.ScalaInstanceNotFound;
@@ -11,7 +10,7 @@ import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 public class ScalaStepsFactoryBehaviour {
 
@@ -20,7 +19,7 @@ public class ScalaStepsFactoryBehaviour {
         ScalaContext context = new ScalaContext("AnnotatedSteps", "NonAnnotatedSteps");
         ScalaStepsFactory factory = new ScalaStepsFactory(new MostUsefulConfiguration(), context);
         List<Class<?>> types = factory.stepsTypes();
-        MatcherAssert.assertThat(types.size(), Matchers.equalTo(1));
+        MatcherAssert.assertThat(types.size(), equalTo(1));
         assertThat(types.get(0).getSimpleName(), equalTo("AnnotatedSteps"));
         Object object = factory.createInstanceOfType(context.newInstance("AnnotatedSteps").getClass());
         assertThat(object.getClass().getName(), equalTo("AnnotatedSteps"));

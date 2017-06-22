@@ -1,6 +1,5 @@
 package org.jbehave.core.parsers.gherkin;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.jbehave.core.model.Narrative;
@@ -9,10 +8,8 @@ import org.jbehave.core.model.Story;
 import org.jbehave.core.parsers.StoryParser;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItem;
 
 import static org.junit.Assert.assertThat;
 
@@ -21,7 +18,7 @@ public class GherkinStoryParserBehaviour {
 	private StoryParser storyParser = new GherkinStoryParser();
 	
 	@Test
-	public void shouldParseStoryWithTabularParameter() throws IOException{
+	public void shouldParseStoryWithTabularParameter() {
 		String storyAsText = "Feature: Hello Car\n"
 					+ "Scenario: Car can drive\n"
 					+ "Given I have a car\n"
@@ -49,7 +46,7 @@ public class GherkinStoryParserBehaviour {
 	}
 
 	@Test
-	public void shouldParseStoryWithExamples() throws IOException{
+	public void shouldParseStoryWithExamples() {
 		String storyAsText = "Feature: Hello Car\n"
 		            + "@scenarioOutline\n"
 					+ "Scenario Outline: Car can drive\n"
@@ -69,8 +66,8 @@ public class GherkinStoryParserBehaviour {
 		assertThat(scenarios.size(), equalTo(1));
 		Scenario scenario = scenarios.get(0);
 		List<String> steps = scenario.getSteps();
-		assertThat(scenario.getTitle(), equalTo("Car can drive"));		
-		assertThat(scenario.getMeta().hasProperty("scenarioOutline"), is(true));
+		assertThat(scenario.getTitle(), equalTo("Car can drive"));
+		assertThat(scenario.getMeta().hasProperty("scenarioOutline"), equalTo(true));
 		assertThat(steps.size(), equalTo(3));
 		assertThat(steps.get(0), equalTo("Given I have a car"));
 		assertThat(steps.get(1), equalTo("When I add <wheels>"));
@@ -84,7 +81,7 @@ public class GherkinStoryParserBehaviour {
 	}
 	
 	@Test
-	public void shouldParseStoryWithNarrative() throws IOException{
+	public void shouldParseStoryWithNarrative() {
 		String storyAsText = "Feature: Hello Car\n"
 				    + "Narrative:\n"
 				    + "In order to feel safer\n"
@@ -102,7 +99,7 @@ public class GherkinStoryParserBehaviour {
 	}
 
 	@Test
-	public void shouldParseStoryWithAlternativeNarrative() throws IOException{
+	public void shouldParseStoryWithAlternativeNarrative() {
 		String storyAsText = "Feature: Hello Car\n"
 				    + "Narrative:\n"
 				    + "As a car driver\n"
@@ -120,7 +117,7 @@ public class GherkinStoryParserBehaviour {
 	}
 
     @Test
-    public void shouldParseStoryWithBackground() throws IOException{
+    public void shouldParseStoryWithBackground() {
         String storyAsText = "Feature: Hello Car\n\n"
                     + "Background:\n"
                     + "Given I have a license\n\n"
@@ -134,7 +131,7 @@ public class GherkinStoryParserBehaviour {
     }
 
     @Test
-    public void shouldParseStoryWithTags() throws IOException{
+    public void shouldParseStoryWithTags() {
         String storyAsText = "@feature\n"
                     + "Feature: Hello Car\n\n"
                     + "Background:\n"
@@ -145,10 +142,10 @@ public class GherkinStoryParserBehaviour {
                     + "Then I can drive it.\n";
         Story story = storyParser.parseStory(storyAsText);
         assertThat(story.getDescription().asString(), equalTo("Hello Car"));
-        assertThat(story.getMeta().hasProperty("feature"), is(true));        
+        assertThat(story.getMeta().hasProperty("feature"), equalTo(true));
         Scenario scenario = story.getScenarios().get(0);
         assertThat(scenario.getSteps().size(), equalTo(2));
-        assertThat(scenario.getMeta().hasProperty("scenario"), is(true));        
+        assertThat(scenario.getMeta().hasProperty("scenario"), equalTo(true));
     }
 
 }

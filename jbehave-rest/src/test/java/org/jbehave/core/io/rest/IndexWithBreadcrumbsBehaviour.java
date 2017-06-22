@@ -2,7 +2,7 @@ package org.jbehave.core.io.rest;
 
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.util.Map;
 

@@ -27,10 +27,9 @@ import static org.apache.tools.ant.Project.MSG_WARN;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.sameInstance;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -49,15 +48,15 @@ public class EmbedderTaskBehaviour {
         Embedder embedder = task.newEmbedder();
         // Then
         EmbedderControls embedderControls = embedder.embedderControls();
-        assertThat(embedderControls.batch(), is(false));
-        assertThat(embedderControls.generateViewAfterStories(), is(true));
-        assertThat(embedderControls.ignoreFailureInStories(), is(false));
-        assertThat(embedderControls.ignoreFailureInView(), is(false));
-        assertThat(embedderControls.verboseFailures(), is(false));
-        assertThat(embedderControls.verboseFiltering(), is(false));
-        assertThat(embedderControls.skip(), is(false));
+        assertThat(embedderControls.batch(), equalTo(false));
+        assertThat(embedderControls.generateViewAfterStories(), equalTo(true));
+        assertThat(embedderControls.ignoreFailureInStories(), equalTo(false));
+        assertThat(embedderControls.ignoreFailureInView(), equalTo(false));
+        assertThat(embedderControls.verboseFailures(), equalTo(false));
+        assertThat(embedderControls.verboseFiltering(), equalTo(false));
+        assertThat(embedderControls.skip(), equalTo(false));
         assertThat(embedderControls.storyTimeouts(), equalTo("300"));
-        assertThat(embedderControls.failOnStoryTimeout(), is(false));
+        assertThat(embedderControls.failOnStoryTimeout(), equalTo(false));
         assertThat(embedderControls.threads(), equalTo(1));  
     }
 
@@ -80,15 +79,15 @@ public class EmbedderTaskBehaviour {
         Embedder embedder = task.newEmbedder();
         // Then
         EmbedderControls embedderControls = embedder.embedderControls();
-        assertThat(embedderControls.batch(), is(true));
-        assertThat(embedderControls.generateViewAfterStories(), is(false));
-        assertThat(embedderControls.ignoreFailureInStories(), is(true));
-        assertThat(embedderControls.ignoreFailureInView(), is(true));
-        assertThat(embedderControls.verboseFailures(), is(true));
-        assertThat(embedderControls.verboseFiltering(), is(true));
-        assertThat(embedderControls.skip(), is(true));
+        assertThat(embedderControls.batch(), equalTo(true));
+        assertThat(embedderControls.generateViewAfterStories(), equalTo(false));
+        assertThat(embedderControls.ignoreFailureInStories(), equalTo(true));
+        assertThat(embedderControls.ignoreFailureInView(), equalTo(true));
+        assertThat(embedderControls.verboseFailures(), equalTo(true));
+        assertThat(embedderControls.verboseFiltering(), equalTo(true));
+        assertThat(embedderControls.skip(), equalTo(true));
         assertThat(embedderControls.storyTimeouts(), equalTo("**/shorts/BddShortTest.story:5"));
-        assertThat(embedderControls.failOnStoryTimeout(), is(true));
+        assertThat(embedderControls.failOnStoryTimeout(), equalTo(true));
         assertThat(embedderControls.threads(), equalTo(2));        
     }
 

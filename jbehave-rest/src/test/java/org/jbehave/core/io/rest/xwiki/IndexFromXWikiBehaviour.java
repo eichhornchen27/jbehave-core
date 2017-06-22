@@ -1,7 +1,7 @@
 package org.jbehave.core.io.rest.xwiki;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

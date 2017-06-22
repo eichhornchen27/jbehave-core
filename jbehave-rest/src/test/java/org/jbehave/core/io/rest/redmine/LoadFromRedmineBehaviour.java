@@ -1,7 +1,6 @@
 package org.jbehave.core.io.rest.redmine;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
@@ -11,8 +10,8 @@ import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.startsWith;
 
 public class LoadFromRedmineBehaviour {
 
@@ -41,7 +40,7 @@ public class LoadFromRedmineBehaviour {
 	}
 
 	@Test
-	public void canReadFromRedmineAsXML() throws MalformedURLException {
+	public void canReadFromRedmineAsXML() {
 		LoadFromRedmine loader = new LoadFromRedmine(Type.XML);
 		String entity = read("redmine.xml");
 		String text = loader.text(entity, Type.XML);

@@ -1,11 +1,10 @@
 package org.jbehave.core.configuration.guice;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.jbehave.core.reporters.Format.CONSOLE;
 import static org.jbehave.core.reporters.Format.HTML;
 import static org.jbehave.core.reporters.Format.STATS;
@@ -69,8 +68,8 @@ public class GuiceAnnotationBuilderBehaviour {
     public void shouldBuildConfigurationFromAnnotations() {
         AnnotationBuilder builder = new GuiceAnnotationBuilder(AnnotatedUsingGuice.class);
         Configuration configuration = builder.buildConfiguration();
-        assertThat(configuration.storyControls().dryRun(), is(true));
-        assertThat(configuration.storyControls().skipScenariosAfterFailure(), is(true));
+        assertThat(configuration.storyControls().dryRun(), equalTo(true));
+        assertThat(configuration.storyControls().skipScenariosAfterFailure(), equalTo(true));
         assertThat(configuration.failureStrategy(), instanceOf(SilentlyAbsorbingFailure.class));
         assertThat(configuration.storyLoader(), instanceOf(LoadFromURL.class));
         assertThat(configuration.stepPatternParser(), instanceOf(RegexPrefixCapturingPatternParser.class));
@@ -86,7 +85,7 @@ public class GuiceAnnotationBuilderBehaviour {
         assertThat(configuration.storyReporterBuilder().viewResources().getProperty("index"),
                 equalTo("my-reports-index.ftl"));
         assertThat(configuration.storyReporterBuilder().viewResources().getProperty("decorateNonHtml"), equalTo("true"));
-        assertThat(configuration.storyReporterBuilder().reportFailureTrace(), is(true));
+        assertThat(configuration.storyReporterBuilder().reportFailureTrace(), equalTo(true));
     }
 
     @Test

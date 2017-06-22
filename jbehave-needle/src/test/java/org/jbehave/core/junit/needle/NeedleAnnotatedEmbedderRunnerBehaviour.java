@@ -1,8 +1,8 @@
 package org.jbehave.core.junit.needle;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -49,7 +49,7 @@ public class NeedleAnnotatedEmbedderRunnerBehaviour {
 		@Test
 		public void testSteps() {
 			final List<CandidateSteps> candidateSteps = injectedEmbedder().stepsFactory().createCandidateSteps();
-			assertThat(candidateSteps.size(), is(1));
+			assertThat(candidateSteps.size(), equalTo(1));
 		}
 
 	}
