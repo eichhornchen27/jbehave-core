@@ -161,7 +161,9 @@ public class PerformableTree {
             if (isParameterisedByExamples(scenario)) {
                 ExamplesTable table = scenario.getExamplesTable();
                 for (Map<String, String> scenarioParameters : table.getRows()) {
-                    Map<String, String> scenarioParametersCopy = new HashMap<String, String>(scenarioParameters);
+                    Map<String, String> scenarioParametersCopy = new HashMap<String, String>(storyParameters);
+                    scenarioParametersCopy.putAll(storyExamplesTableRow);
+                    scenarioParametersCopy.putAll(scenarioParameters);
                     for (Map.Entry<String, String> entry : scenarioParametersCopy.entrySet()) {
                         entry.setValue((String) context.configuration().parameterConverters().convert(entry.getValue(),
                                 String.class, story));
