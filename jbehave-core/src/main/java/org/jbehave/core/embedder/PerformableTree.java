@@ -1,6 +1,7 @@
 package org.jbehave.core.embedder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,7 +58,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
  */
 public class PerformableTree {
 
-    private static final Map<String, String> NO_PARAMETERS = new HashMap<>();
+    private static final Map<String, String> NO_PARAMETERS = Collections.emptyMap();
 
     private PerformableRoot root = new PerformableRoot();
 
@@ -276,8 +277,9 @@ public class PerformableTree {
                 if ( givenStory.hasAnchorParameters() ){
                     story = storyWithMatchingScenarios(story, givenStory.getAnchorParameters());
                 }
-                parameters.putAll(givenStory.getParameters());
-                stories.add(performableStory(childContext, story, parameters));
+                Map<String, String> storyParameters = new HashMap<String, String>(parameters);
+                storyParameters.putAll(givenStory.getParameters());
+                stories.add(performableStory(childContext, story, storyParameters));
             }
         }
         return stories;
