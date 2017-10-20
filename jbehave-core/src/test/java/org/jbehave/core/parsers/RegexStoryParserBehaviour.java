@@ -601,7 +601,9 @@ public class RegexStoryParserBehaviour {
                 "parameters: two, three" + NL +
                 "Scenario:" + NL +
                 "Given a scenario";
-        testParseStoryWithParametrisedExamplesWithDifferentAmount(wholeStory);
+        String expectedExamplesTable = "|two|three|" + NL +
+                "|12|${skip}|" + NL;
+        testParseStoryWithLifecycleExamplesOnly(wholeStory, expectedExamplesTable);
     }
 
     @Test
@@ -654,6 +656,10 @@ public class RegexStoryParserBehaviour {
                 "|11|12|${skip}|" + NL +
                 "|21|${skip}|${skip}|" + NL +
                 "parameters: three";
+        verifyScenarioSkipped(wholeStory);
+    }
+
+    private void verifyScenarioSkipped(String wholeStory) {
         LocalizedKeywords keywords = new LocalizedKeywords();
         parser.setSkipMeta(Meta.createMeta("@skip", keywords));
         Story story = parser.parseStory(wholeStory, storyPath);
@@ -671,19 +677,55 @@ public class RegexStoryParserBehaviour {
                 "Examples:" + NL +
                 "table:" + NL +
                 "|one|two|three|" + NL +
-                "|11|12|${skip}|" + NL +
-                "|21|${skip}|${skip}|" + NL +
+                "|11|12|13|" + NL +
+                "|21|${skip}|23|" + NL +
                 "parameters: two, three";
-        testParseStoryWithParametrisedExamplesWithDifferentAmount(wholeStory);
+        String expectedExamplesTable = "|two|three|" + NL +
+                "|12|13|" + NL;
+        testParseStoryWithParametrisedExamplesInScenario(wholeStory, expectedExamplesTable);
     }
 
-    private void testParseStoryWithParametrisedExamplesWithDifferentAmount(String wholeStory) {
+    @Test
+    public void shouldParseStoryWithSkippedExamplesInScenarioWhichReferToExamplesInStory() {
+        String wholeStory = "Lifecycle: " + NL +
+                "Examples:" + NL +
+                "table:" + NL +
+                "|story_one|story_two|story_three|" + NL +
+                "|story_11|story_12|${skip}|" + NL +
+                "parameters: story_two, story_three" + NL +
+                "Scenario:" + NL +
+                "Given a scenario" + NL +
+                "Examples:" + NL +
+                "table:" + NL +
+                "|scenario_one|scenario_two|scenario_three|" + NL +
+                "|scenario_11|<story_two>|<story_three>|" + NL +
+                "parameters: scenario_two, scenario_three";
+        verifyScenarioSkipped(wholeStory);
+    }
+
+    @Test
+    public void shouldParseStoryWithSkippedExamplesInScenarioWhichReferToInconsistentExamplesInStory() {
+        String wholeStory = "Lifecycle: " + NL +
+                "Examples:" + NL +
+                "table:" + NL +
+                "|story_one|story_two|story_three|" + NL +
+                "|story_11|story_12|${skip}|" + NL +
+                "|story_21|story_22|story_23|" + NL +
+                "parameters: story_two, story_three" + NL +
+                "Scenario:" + NL +
+                "Given a scenario" + NL +
+                "Examples:" + NL +
+                "table:" + NL +
+                "|scenario_one|scenario_two|scenario_three|" + NL +
+                "|scenario_11|<story_two>|<story_three>|" + NL +
+                "parameters: scenario_two, scenario_three";
         Story story = parser.parseStory(wholeStory, storyPath);
         assertTrue("Parsed story is instance of FailedStory", story instanceof FailedStory);
         assertEquals("Story path equals", storyPath, story.getPath());
         Throwable cause = ((FailedStory) story).getCause().getCause();
         assertTrue(cause instanceof ExamplesCutException);
-        assertEquals("Story or scenario refer to variables with different number of examples", cause.getMessage());
+        assertEquals("Scenario's Examples Table values should refer to story's Examples Table columns that contain either" +
+                " only normal parameters or only skipped", cause.getMessage());
         assertEquals("Exception at story parsing", ((FailedStory) story).getStage());
         assertEquals("Exception at building Examples Table", ((FailedStory) story).getSubStage());
     }
