@@ -161,30 +161,38 @@ public class RegexStoryParser extends AbstractRegexParser implements StoryParser
             beforeScenario = StringUtils.substringBefore(storyAsText, scenarioKeyword);
         }
         Matcher findingLifecycle = findingLifecycle().matcher(beforeScenario);
-        String lifecycle = findingLifecycle.find() ? findingLifecycle.group(1).trim() : NONE;
-
+        String lifecycle;
+        ExamplesTable examplesTable;
+        if (findingLifecycle.find()) {
+            lifecycle = findingLifecycle.group(1).trim();
+            examplesTable = findExamplesTable(findingLifecycle.group(0));
+        }
+        else {
+            lifecycle = NONE;
+            examplesTable = ExamplesTable.EMPTY;
+        }
         Matcher findingBeforeAndAfter = compile(".*" + keywords().before() + "(.*)\\s*" + keywords().after() + "(.*)\\s*", DOTALL).matcher(lifecycle);
         if ( findingBeforeAndAfter.matches() ){
             String beforeLifecycle = findingBeforeAndAfter.group(1).trim();
             List<Steps> beforeSteps = parseBeforeLifecycle(beforeLifecycle);
             String afterLifecycle = findingBeforeAndAfter.group(2).trim();
             List<Steps> afterSteps = parseAfterLifecycle(afterLifecycle);
-            return new Lifecycle(beforeSteps, afterSteps);
+            return new Lifecycle(examplesTable, beforeSteps, afterSteps);
         }
         Matcher findingBefore = compile(".*" + keywords().before() + "(.*)\\s*", DOTALL).matcher(lifecycle);
         if ( findingBefore.matches() ){
             String beforeLifecycle = findingBefore.group(1).trim();
             List<Steps>  beforeSteps = parseBeforeLifecycle(beforeLifecycle);
-            return new Lifecycle(beforeSteps, Arrays.<Steps>asList());
+            return new Lifecycle(examplesTable, beforeSteps, Arrays.<Steps>asList());
         }
         Matcher findingAfter = compile(".*" + keywords().after() + "(.*)\\s*", DOTALL).matcher(lifecycle);
         if ( findingAfter.matches() ){
             List<Steps> beforeSteps = asList();
             String afterLifecycle = findingAfter.group(1).trim();
             List<Steps>  afterSteps = parseAfterLifecycle(afterLifecycle);
-            return new Lifecycle(beforeSteps, afterSteps);
+            return new Lifecycle(examplesTable, beforeSteps, afterSteps);
         }
-        return Lifecycle.EMPTY;
+        return new Lifecycle(examplesTable);
     }
 
     private Pattern findingBeforeAndAfterSteps() {
