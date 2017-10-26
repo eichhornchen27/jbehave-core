@@ -531,6 +531,44 @@ public class RegexStoryParserBehaviour {
     }
 
     @Test
+    public void shouldParseStoryWithLifecycleExamplesOnlyAndRowCountLimitation() {
+        String wholeStory = "Lifecycle: " + NL +
+                "Examples:" + NL +
+                "|one|two|three|" + NL +
+                "|11|12|13|" + NL +
+                "|21|22|23|" + NL +
+                "Scenario:"+ NL +
+                "Given a scenario";
+        String expectedExamplesTable = "|one|two|three|" + NL +
+                "|11|12|13|" + NL;
+        parser.setMaxExamplesRowCount(1);
+        testParseStoryWithLifecycleExamplesOnly(wholeStory, expectedExamplesTable);
+    }
+
+    @Test
+    public void shouldParseStoryWithLifecycleExamplesOnlyAndZeroRowCountLimitation() {
+        String wholeStory = "Lifecycle: " + NL +
+                "Examples:" + NL +
+                "|one|two|three|" + NL +
+                "|11|12|13|" + NL +
+                "|21|22|23|" + NL +
+                "Scenario:"+ NL +
+                "Given a scenario";
+        String expectedExamplesTable = "|one|two|three|" + NL +
+                "|11|12|13|" + NL;
+        parser.setMaxExamplesRowCount(0);
+        verifySkippedStory(wholeStory);
+    }
+
+    private void verifySkippedStory(String wholeStory) {
+        LocalizedKeywords keywords = new LocalizedKeywords();
+        parser.setSkipMeta(Meta.createMeta("@skip", keywords));
+        Story story = parser.parseStory(wholeStory, storyPath);
+        assertTrue(story.getMeta().hasProperty("skip"));
+        assertTrue(story.getLifecycle().isEmpty());
+    }
+
+    @Test
     public void shouldParseStoryWithLifecycleParametrisedExamplesOnly() {
         String wholeStory = "Lifecycle: " + NL +
                 "Examples:" + NL +
@@ -583,11 +621,7 @@ public class RegexStoryParserBehaviour {
                 "parameters: three" + NL +
                 "Scenario:" + NL +
                 "Given a scenario";
-        LocalizedKeywords keywords = new LocalizedKeywords();
-        parser.setSkipMeta(Meta.createMeta("@skip", keywords));
-        Story story = parser.parseStory(wholeStory, storyPath);
-        assertTrue(story.getMeta().hasProperty("skip"));
-        assertTrue(story.getLifecycle().isEmpty());
+        verifySkippedStory(wholeStory);
     }
 
     @Test

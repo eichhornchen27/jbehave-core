@@ -48,6 +48,7 @@ public class RegexStoryParser extends AbstractRegexParser implements StoryParser
     private final ParameterControls parameterControls = new ParameterControls();
     private Meta skipMeta;
     private String skippedExample;
+    private Integer maxExamplesRowCount;
 
     public RegexStoryParser() {
         this(new LocalizedKeywords());
@@ -379,7 +380,10 @@ public class RegexStoryParser extends AbstractRegexParser implements StoryParser
             examplesParameters = splitExamplesParameters(findingTableWithParams.group(2).trim());
         }
         ExamplesTable examplesTable = tableFactory.createExamplesTable(tableInput);
-        if (examplesTable.isEmpty()) {
+        if (maxExamplesRowCount != null && examplesTable.getRowCount() > maxExamplesRowCount) {
+            examplesTable = createExamplesTable(examplesTable, examplesTable.getRows().subList(0, maxExamplesRowCount));
+        }
+        if (examplesTable == null || examplesTable.isEmpty()) {
             return examplesTable;
         }
         if (!examplesParameters.isEmpty()) {
@@ -581,5 +585,8 @@ public class RegexStoryParser extends AbstractRegexParser implements StoryParser
 
     public void setSkippedExample(String skippedExample) {
         this.skippedExample = skippedExample;
+    }
+    public void setMaxExamplesRowCount(Integer maxExamplesRowCount) {
+        this.maxExamplesRowCount = maxExamplesRowCount;
     }
 }
