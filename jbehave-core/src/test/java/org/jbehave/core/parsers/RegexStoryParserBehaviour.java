@@ -238,6 +238,20 @@ public class RegexStoryParserBehaviour {
         assertThat(steps.get(3), equalTo("!-- ignore me too"));
         assertThat(steps.get(4), equalTo("Then I should get steps Thenact"));
     }
+    
+    @Test
+    public void shouldParseStoryWithCommentBeforeGivenStories() {
+        String wholeStory = "Meta: @some" + NL +
+                "!-- ignore me" + NL +
+                "GivenStories: given.story" + NL +
+                "Given a scenario Givenly";;
+        Story story = parser.parseStory(
+                wholeStory, storyPath);
+
+        List<String> steps = story.getScenarios().get(0).getSteps();
+        assertThat(steps.get(0), equalTo("!-- ignore me"));
+        assertThat(steps.get(1), equalTo("Given a scenario Givenly"));
+    }
 
     @Test
     public void shouldParseStoryWithSynonymsOfStartingWords() {
