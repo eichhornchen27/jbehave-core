@@ -473,12 +473,19 @@ public class StepCreator {
             position = position - numberOfPreviousFromContext(names, position);
             stepMonitor.usingNaturalOrderForParameter(position);
             parameter = matchedParameter(position);
-            List<String> delimitedNames = delimitedNameFor(parameter);
+            List<String> delimitedNames;
 
-            for(String delimitedName : delimitedNames) {
-                if (isTableName(namedParameters, delimitedName)) {
-                    parameter = parameterControls.replaceAllDelimitedNames(parameter, delimitedName,
-                            namedParameter(namedParameters, delimitedName));
+            
+            while(!(delimitedNames = delimitedNameFor(parameter)).isEmpty()) {
+                String parameterWithDelimitedNames = parameter;
+                for(String delimitedName : delimitedNames) {
+                    if (isTableName(namedParameters, delimitedName)) {
+                        parameter = parameterControls.replaceAllDelimitedNames(parameter, delimitedName,
+                                namedParameter(namedParameters, delimitedName));
+                    }
+                }
+                if(parameterWithDelimitedNames.equals(parameter)) {
+                    break;
                 }
             }
         }
