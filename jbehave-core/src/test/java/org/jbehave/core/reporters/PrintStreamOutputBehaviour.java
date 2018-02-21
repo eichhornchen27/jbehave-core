@@ -1,14 +1,20 @@
 package org.jbehave.core.reporters;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import org.jbehave.core.failures.KnownFailure;
 import org.jbehave.core.failures.UUIDExceptionWrapper;
 import org.jbehave.core.i18n.LocalizedKeywords;
 import org.jbehave.core.io.*;
 import org.jbehave.core.junit.JUnitStory;
+import org.jbehave.core.model.Description;
+import org.jbehave.core.model.ExamplesTable;
 import org.jbehave.core.model.Meta;
+import org.jbehave.core.model.Narrative;
 import org.jbehave.core.model.OutcomesTable;
 import org.jbehave.core.model.OutcomesTable.OutcomesFailed;
 import org.jbehave.core.model.Scenario;
+import org.jbehave.core.model.Story;
 import org.jbehave.core.reporters.StoryNarrator.IsDateEqual;
 import org.junit.Test;
 import org.xml.sax.SAXException;
@@ -439,6 +445,68 @@ public class PrintStreamOutputBehaviour extends AbstractOutputBehaviour {
                 + "|Description|Value|Matcher|Verified|\n"
                 + "|A wrong date|01/01/2011|\"02/01/2011\"|No|\n";
         assertThat(dos2unix(out.toString()), equalTo(expected));
+    }
+
+    @Test
+    public void shouldReportEventsToJsonOutputScenarioGivenStoriesWithMultipleExamples()
+    {
+        // Given
+        OutputStream out = new ByteArrayOutputStream();
+        StoryReporter reporter = new JsonOutput(new PrintStream(out), new Properties(), new LocalizedKeywords());
+
+        // When
+        Story story = new Story("/path/to/story", new Description("An interesting story & special chars"),
+                new Narrative("renovate my house", "customer", "get a loan"), new ArrayList<Scenario>());
+        Story givenStory = new Story("/given/story1", new Description("An interesting story & special chars"),
+                new Narrative("take a loan", "customer", "get to the bank"), new ArrayList<Scenario>());
+        ExamplesTable table = new ExamplesTable("|money|\n|$30|\n|$50|\n");
+        Scenario givenStoryScenario = new Scenario("Commute to bank", Meta.EMPTY);
+        String givenStoryStep = "I take a taxi to the bank";
+        reporter.beforeStory(story, false);
+        reporter.beforeScenario(new Scenario("I ask for a loan", Meta.EMPTY));
+        reporter.beforeExamples(Collections.singletonList("Given money <money>"), table);
+        reporter.example(table.getRow(0));
+        reporter.beforeGivenStories();
+        reporter.givenStories(Collections.singletonList(givenStory.getPath()));
+        reporter.beforeStory(givenStory, true);
+        reporter.beforeScenario(givenStoryScenario);
+        reporter.successful(givenStoryStep);
+        reporter.afterScenario();
+        reporter.afterStory(true);
+        reporter.afterGivenStories();
+        reporter.successful("Given money $30");
+        reporter.example(table.getRow(1));
+        reporter.beforeGivenStories();
+        reporter.givenStories(Collections.singletonList(givenStory.getPath()));
+        reporter.beforeStory(givenStory, true);
+        reporter.beforeScenario(givenStoryScenario);
+        reporter.successful(givenStoryStep);
+        reporter.afterScenario();
+        reporter.afterStory(true);
+        reporter.afterGivenStories();
+        reporter.successful("Given money $50");
+        reporter.afterExamples();
+        reporter.afterScenario();
+        reporter.afterStory(false);
+
+        // Then
+        String expected = "{\"path\": \"\\/path\\/to\\/story\", \"title\": \"An interesting story & special chars\","
+                + "\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": \"I ask for a loan\",\"examples\": "
+                + "{\"keyword\": \"Examples:\",\"steps\": [\"Given money <money>\"],\"parameters\": {\"names\": "
+                + "[\"money\"],\"values\": [[\"$30\"],[\"$50\"]]}, \"examples\": [{\"keyword\": \"Example:\", "
+                + "\"value\": \"{money=$30}\",\"givenStories\": {\"keyword\": \"GivenStories:\", "
+                + "\"givenStories\":[{\"parameters\": \"\", \"value\": \"\\/given\\/story1\"}],\"stories\": "
+                + "[{\"path\": \"\\/given\\/story1\", \"title\": \"An interesting story & special chars\","
+                + "\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": \"Commute to bank\",\"steps\": "
+                + "[{\"outcome\": \"successful\", \"value\": \"I take a taxi to the bank\"}]}]}]},\"steps\": "
+                + "[{\"outcome\": \"successful\", \"value\": \"Given money $30\"}]},{\"keyword\": \"Example:\", "
+                + "\"value\": \"{money=$50}\",\"givenStories\": {\"keyword\": \"GivenStories:\", "
+                + "\"givenStories\":[{\"parameters\": \"\", \"value\": \"\\/given\\/story1\"}],\"stories\": "
+                + "[{\"path\": \"\\/given\\/story1\", \"title\": \"An interesting story & special chars\","
+                + "\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": \"Commute to bank\",\"steps\": "
+                + "[{\"outcome\": \"successful\", \"value\": \"I take a taxi to the bank\"}]}]}]},\"steps\": "
+                + "[{\"outcome\": \"successful\", \"value\": \"Given money $50\"}]}]}}]}";
+
     }
 
     @SuppressWarnings("serial")

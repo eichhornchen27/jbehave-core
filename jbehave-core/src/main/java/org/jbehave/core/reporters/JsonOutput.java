@@ -70,6 +70,7 @@ public class JsonOutput extends PrintStreamOutput {
     protected String format(String key, String defaultPattern, Object... args) {
         if ("beforeGivenStories".equals(key)) {
             givenStoriesLevel++;
+            scenarioCompleted = false;
         } else if ("afterGivenStories".equals(key)) {
             if (storyPublishingLevel == givenStoriesLevel) {
                 // Closing given "stories"
