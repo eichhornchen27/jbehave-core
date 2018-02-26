@@ -373,15 +373,21 @@ public class RegexStoryParser extends AbstractRegexParser implements StoryParser
     private ExamplesTable findExamplesTable(String scenarioAsText, ExamplesTable storyExamples) {
         Matcher findingTable = findingExamplesTable().matcher(scenarioAsText);
         String tableInput = findingTable.find() ? findingTable.group(1).trim() : NONE;
-        Matcher findingTableWithParams = compile("table:\\s*(.*)\\nparameters:\\s*(.*)", DOTALL).matcher(tableInput);
+        Matcher findingTableWithParams = compile("table:\\s*(.*)\\nparameters:\\s*([^\\n]*)(\\ntop_rows:\\s*(\\d+))?",
+                DOTALL).matcher(tableInput);
         List<String> examplesParameters = new ArrayList<String>();
+        Integer topRows = maxExamplesRowCount;
         if (findingTableWithParams.find()) {
             tableInput = findingTableWithParams.group(1).trim();
             examplesParameters = splitExamplesParameters(findingTableWithParams.group(2).trim());
+            String topRowsText = findingTableWithParams.group(4);
+            if (topRowsText != null) {
+                topRows = Integer.parseInt(topRowsText);
+            }
         }
         ExamplesTable examplesTable = tableFactory.createExamplesTable(tableInput);
-        if (maxExamplesRowCount != null && examplesTable.getRowCount() > maxExamplesRowCount) {
-            examplesTable = createExamplesTable(examplesTable, examplesTable.getRows().subList(0, maxExamplesRowCount));
+        if (topRows != null && examplesTable.getRowCount() > topRows) {
+            examplesTable = createExamplesTable(examplesTable, examplesTable.getRows().subList(0, topRows));
         }
         if (examplesTable == null || examplesTable.isEmpty()) {
             return examplesTable;

@@ -563,6 +563,23 @@ public class RegexStoryParserBehaviour {
     }
 
     @Test
+    public void shouldParseStoryWithLifecycleExamplesOnlyAndRowCountLimitationInTable() {
+        String wholeStory = "Lifecycle: " + NL +
+                "Examples:" + NL +
+                "table:" + NL +
+                "|one|two|three|" + NL +
+                "|11|12|13|" + NL +
+                "|21|22|23|" + NL +
+                "parameters: one, two, three" + NL +
+                "top_rows: 1" + NL +
+                "Scenario:"+ NL +
+                "Given a scenario";
+        String expectedExamplesTable = "|one|two|three|" + NL +
+                "|11|12|13|" + NL;
+        testParseStoryWithLifecycleExamplesOnly(wholeStory, expectedExamplesTable);
+    }
+
+    @Test
     public void shouldParseStoryWithLifecycleExamplesOnlyAndZeroRowCountLimitation() {
         String wholeStory = "Lifecycle: " + NL +
                 "Examples:" + NL +
@@ -571,9 +588,22 @@ public class RegexStoryParserBehaviour {
                 "|21|22|23|" + NL +
                 "Scenario:"+ NL +
                 "Given a scenario";
-        String expectedExamplesTable = "|one|two|three|" + NL +
-                "|11|12|13|" + NL;
         parser.setMaxExamplesRowCount(0);
+        verifySkippedStory(wholeStory);
+    }
+
+    @Test
+    public void shouldParseStoryWithLifecycleExamplesOnlyAndZeroRowCountLimitationInTable() {
+        String wholeStory = "Lifecycle: " + NL +
+                "Examples:" + NL +
+                "table:" + NL +
+                "|one|two|three|" + NL +
+                "|11|12|13|" + NL +
+                "|21|22|23|" + NL +
+                "parameters: one, two, three" + NL +
+                "top_rows: 0" + NL +
+                "Scenario:"+ NL +
+                "Given a scenario";
         verifySkippedStory(wholeStory);
     }
 
