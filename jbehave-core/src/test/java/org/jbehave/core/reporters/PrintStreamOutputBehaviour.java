@@ -9,6 +9,7 @@ import org.jbehave.core.io.*;
 import org.jbehave.core.junit.JUnitStory;
 import org.jbehave.core.model.Description;
 import org.jbehave.core.model.ExamplesTable;
+import org.jbehave.core.model.Lifecycle;
 import org.jbehave.core.model.Meta;
 import org.jbehave.core.model.Narrative;
 import org.jbehave.core.model.OutcomesTable;
@@ -495,18 +496,62 @@ public class PrintStreamOutputBehaviour extends AbstractOutputBehaviour {
                 + "{\"keyword\": \"Examples:\",\"steps\": [\"Given money <money>\"],\"parameters\": {\"names\": "
                 + "[\"money\"],\"values\": [[\"$30\"],[\"$50\"]]}, \"examples\": [{\"keyword\": \"Example:\", "
                 + "\"value\": \"{money=$30}\",\"givenStories\": {\"keyword\": \"GivenStories:\", "
-                + "\"givenStories\":[{\"parameters\": \"\", \"value\": \"\\/given\\/story1\"}],\"stories\": "
+                + "\"givenStories\":[{\"parameters\": \"\", \"path\": \"\\/given\\/story1\"}],\"stories\": "
                 + "[{\"path\": \"\\/given\\/story1\", \"title\": \"An interesting story & special chars\","
                 + "\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": \"Commute to bank\",\"steps\": "
                 + "[{\"outcome\": \"successful\", \"value\": \"I take a taxi to the bank\"}]}]}]},\"steps\": "
                 + "[{\"outcome\": \"successful\", \"value\": \"Given money $30\"}]},{\"keyword\": \"Example:\", "
                 + "\"value\": \"{money=$50}\",\"givenStories\": {\"keyword\": \"GivenStories:\", "
-                + "\"givenStories\":[{\"parameters\": \"\", \"value\": \"\\/given\\/story1\"}],\"stories\": "
+                + "\"givenStories\":[{\"parameters\": \"\", \"path\": \"\\/given\\/story1\"}],\"stories\": "
                 + "[{\"path\": \"\\/given\\/story1\", \"title\": \"An interesting story & special chars\","
                 + "\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": \"Commute to bank\",\"steps\": "
                 + "[{\"outcome\": \"successful\", \"value\": \"I take a taxi to the bank\"}]}]}]},\"steps\": "
                 + "[{\"outcome\": \"successful\", \"value\": \"Given money $50\"}]}]}}]}";
 
+        assertThat(dos2unix(out.toString()), equalTo(expected));
+    }
+
+    @Test
+    public void shouldReportEventsToJsonOutputEmptyScenarioLifecycle()
+    {
+        // Given
+        OutputStream out = new ByteArrayOutputStream();
+        StoryReporter reporter = new JsonOutput(new PrintStream(out), new Properties(), new LocalizedKeywords());
+
+        // When
+        ExamplesTable table = new ExamplesTable("|actual|expected|\n|some data|some data|\n");
+        Lifecycle lifecycle = new Lifecycle(table);
+        ExamplesTable emptyExamplesTable = ExamplesTable.EMPTY;
+        Story story = new Story("/path/to/story", new Description("Story with lifecycle and empty scenario"), null,
+                null, null, lifecycle, new ArrayList<Scenario>());
+
+        reporter.beforeStory(story, false);
+        reporter.lifecyle(lifecycle);
+        reporter.beforeScenario(new Scenario("Normal scenario", Meta.EMPTY));
+        reporter.beforeExamples(Collections.singletonList("Then '<expected>' is equal to '<actual>'"), emptyExamplesTable);
+        reporter.example(table.getRow(0));
+        reporter.successful("Then '((some data))' is ((equal to)) '((some data))'");
+        reporter.afterExamples();
+        reporter.afterScenario();
+        reporter.beforeScenario(new Scenario("Some empty scenario", Meta.EMPTY));
+        reporter.beforeExamples(Collections.<String>emptyList(), emptyExamplesTable);
+        reporter.example(table.getRow(0));
+        reporter.afterExamples();
+        reporter.afterScenario();
+        reporter.afterStory(false);
+
+        // Then
+        String expected = "{\"path\": \"\\/path\\/to\\/story\", \"title\": \"Story with lifecycle and empty scenario\",\"lifecycle\": "
+                + "{\"keyword\": \"Lifecycle:\"},\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": \"Normal "
+                + "scenario\",\"examples\": {\"keyword\": \"Examples:\",\"steps\": [\"Then '<expected>' is equal to "
+                + "'<actual>'\"],\"parameters\": {\"names\": [],\"values\": []}, \"examples\": [{\"keyword\": "
+                + "\"Example:\", \"value\": \"{actual=some data, expected=some data}\",\"steps\": [{\"outcome\": "
+                + "\"successful\", \"value\": \"Then '((some data))' is ((equal to)) '((some data))'\"}]}]}},"
+                + "{\"keyword\": \"Scenario:\", \"title\": \"Some empty scenario\",\"examples\": {\"keyword\": "
+                + "\"Examples:\",\"steps\": [],\"parameters\": {\"names\": [],\"values\": []}, \"examples\": "
+                + "[{\"keyword\": \"Example:\", \"value\": \"{actual=some data, expected=some data}\"}]}}]}";
+
+        assertThat(dos2unix(out.toString()), equalTo(expected));
     }
 
     @SuppressWarnings("serial")
