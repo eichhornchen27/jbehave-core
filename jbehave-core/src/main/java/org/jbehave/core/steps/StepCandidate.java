@@ -67,7 +67,7 @@ public class StepCandidate {
     }
 
     public Object getStepsInstance() {
-        return stepsFactory.createInstanceOfType(stepsType);
+        return stepsFactory != null ? stepsFactory.createInstanceOfType(stepsType) : null;
     }
 
     public Class<?> getStepsType() {
@@ -137,7 +137,7 @@ public class StepCandidate {
     }
 
     public boolean isPending() {
-        return method.isAnnotationPresent(Pending.class);
+        return method != null && method.isAnnotationPresent(Pending.class);
     }
 
     public boolean matches(String stepAsString) {
@@ -183,8 +183,8 @@ public class StepCandidate {
 
     private void addComposedStepsRecursively(List<Step> steps, String stepAsString,
             Map<String, String> namedParameters, List<StepCandidate> allCandidates, String[] composedSteps) {
-        Map<String, String> matchedParameters = stepCreator.matchedParameters(method, stepAsString,
-                stripStartingWord(stepAsString), namedParameters);
+        Map<String, String> matchedParameters = stepCreator.matchedParameters(method, stripStartingWord(stepAsString),
+                namedParameters);
         matchedParameters.putAll(namedParameters);
         for (String composedStep : composedSteps) {
             addComposedStep(steps, composedStep, matchedParameters, allCandidates);
