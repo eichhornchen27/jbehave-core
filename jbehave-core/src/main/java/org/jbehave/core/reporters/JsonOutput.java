@@ -8,6 +8,7 @@ import static org.jbehave.core.steps.StepCreator.PARAMETER_VALUE_NEWLINE;
 import static org.jbehave.core.steps.StepCreator.PARAMETER_VALUE_START;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -15,6 +16,7 @@ import java.util.Properties;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jbehave.core.configuration.Keywords;
+import org.jbehave.core.model.OutcomesTable;
 
 /**
  * <p>
@@ -33,8 +35,7 @@ public class JsonOutput extends PrintStreamOutput {
     private static final char JSON_ARRAY_START = '[';
     private static final char[] JSON_START_CHARS = { JSON_DOCUMENT_START, JSON_OBJECT_START, JSON_ARRAY_START };
 
-    private static final String[] STEP_KEYS = { "successful", "ignorable", "comment", "pending", "notPerformed",
-            "failed", "restarted" };
+    private static final String[] STEP_KEYS = { "successful", "ignorable", "comment", "pending", "notPerformed", "restarted", "failed" };
 
     private static final String[] PARAMETER_KEYS = { PARAMETER_TABLE_START, PARAMETER_TABLE_END, PARAMETER_VALUE_START,
             PARAMETER_VALUE_END, PARAMETER_VALUE_NEWLINE, "parameterValueStart", "parameterValueEnd",
@@ -44,6 +45,8 @@ public class JsonOutput extends PrintStreamOutput {
 
     private int givenStoriesLevel = 0;
     private int storyPublishingLevel = 0;
+    private int subStepsLevel = 0;
+    private String mainStepTitle = StringUtils.EMPTY;
     private final Map<Integer, Boolean> scenarioPublishingPerLevels = new HashMap<>();
     private boolean scenarioCompleted = false;
     private boolean stepPublishing = false;
@@ -64,6 +67,63 @@ public class JsonOutput extends PrintStreamOutput {
             super.print(output, doNotAddComma ? text : "," + text);
             lastChar = text.charAt(text.length() - 1);
         }
+    }
+
+    @Override
+    public void beforeStep(String step) {
+        if(step != null){
+            mainStepTitle = step;
+        }
+        printSubSteps();
+        super.beforeStep(step);
+    }
+
+    @Override
+    public void successful(String step) {
+        startBddStep();
+        super.successful(step);
+    }
+
+    @Override
+    public void pending(String step) {
+        startBddStep();
+        super.pending(step);
+    }
+
+    @Override
+    public void failed(String step, Throwable storyFailure) {
+        startBddStep();
+        super.failed(step, storyFailure);
+    }
+
+    @Override
+    public void failedOutcomes(String step, OutcomesTable table) {
+        startBddStep();
+        super.failedOutcomes(step, table);
+    }
+
+    @Override
+    public void ignorable(String step) {
+        startBddStep();
+        super.ignorable(step);
+    }
+
+    @Override
+    public void comment(String step) {
+        startBddStep();
+        super.comment(step);
+    }
+
+    @Override
+    public void notPerformed(String step) {
+        startBddStep();
+        super.notPerformed(step);
+    }
+
+    @Override
+    public void restarted(String step, Throwable cause) {
+        startBddStep();
+        super.restarted(step, cause);
     }
 
     @Override
@@ -94,17 +154,42 @@ public class JsonOutput extends PrintStreamOutput {
                 print("]}");
                 stepPublishing = false;
             }
-            if ("afterScenario".equals(key) || "afterScenarioWithFailure".equals(key)) {
-                // Closing "steps"
+            if ("pendingMethodsStart".equals(key)){
+                // Closing "steps" for scenario
+                print("]");
+                stepPublishing = false;
+            }
+            if ( "afterScenario".equals(key) || "afterScenarioWithFailure".equals(key)) {
+                // Closing "steps" for scenario
                 print("]");
                 stepPublishing = false;
                 scenarioCompleted = true;
             }
-        } else if (ArrayUtils.contains(STEP_KEYS, key)) {
-            // Starting "steps"
-            print("\"steps\": [");
-            stepPublishing = true;
-        } else if ("beforeScenario".equals(key)) {
+            if ("subSteps".equals(key)) {
+                subStepsLevel++;
+            }
+            if (ArrayUtils.contains(STEP_KEYS, key)) {
+                // Closing "steps" for step
+                print("]");
+                subStepsLevel--;
+
+                String currentStepTitle = convertParametrizedStep(args[args.length - 1].toString());
+                if (currentStepTitle.equals(mainStepTitle)) {
+                    if(subStepsLevel > 0) {
+                        //close nested sub steps
+                        print("}]");
+                        subStepsLevel = 0;
+                    }
+                    mainStepTitle = StringUtils.EMPTY;
+                }
+            }
+        }
+        else if ("subSteps".equals(key)) {
+                print("\"steps\": [");
+                subStepsLevel++;
+                stepPublishing = true;
+        }
+        else if ("beforeScenario".equals(key)) {
             scenarioCompleted = false;
             if (scenarioPublishingPerLevels.get(storyPublishingLevel) != Boolean.TRUE) {
                 // Starting "scenarios"
@@ -163,13 +248,14 @@ public class JsonOutput extends PrintStreamOutput {
         patterns.setProperty("givenStory", "'{'\"parameters\": \"{1}\", \"path\": \"{0}\"}");
         patterns.setProperty("givenStoriesEnd", "]");
         patterns.setProperty("afterGivenStories", "}");
-        patterns.setProperty("successful", "'{'\"outcome\": \"successful\", \"value\": \"{0}\"}");
-        patterns.setProperty("ignorable", "'{'\"outcome\": \"ignorable\", \"value\": \"{0}\"}");
-        patterns.setProperty("comment", "'{'\"comment\": \"ignorable\", \"value\": \"{0}\"}");
-        patterns.setProperty("pending", "'{'\"outcome\": \"pending\", \"keyword\": \"{1}\", \"value\": \"{0}\"}");
-        patterns.setProperty("notPerformed", "'{'\"outcome\": \"notPerformed\", \"keyword\": \"{1}\", \"value\": \"{0}\"}");
-        patterns.setProperty("failed", "'{'\"outcome\": \"failed\", \"keyword\": \"{1}\", \"value\": \"{0}\", \"failure\": \"{2}\"}");
-        patterns.setProperty("restarted", "'{'\"outcome\": \"restarted\", \"value\": \"{0}\", \"reason\": \"{1}\"}");
+        patterns.setProperty("subSteps", "'{'\"steps\": [");
+        patterns.setProperty("successful", "\"outcome\": \"successful\", \"value\": \"{0}\"}");
+        patterns.setProperty("ignorable", "\"outcome\": \"ignorable\", \"value\": \"{0}\"}");
+        patterns.setProperty("comment", "\"comment\": \"ignorable\", \"value\": \"{0}\"}");
+        patterns.setProperty("pending", "\"outcome\": \"pending\", \"keyword\": \"{1}\", \"value\": \"{0}\"}");
+        patterns.setProperty("notPerformed", "\"outcome\": \"notPerformed\", \"keyword\": \"{1}\", \"value\": \"{0}\"}");
+        patterns.setProperty("failed", "\"outcome\": \"failed\", \"keyword\": \"{1}\", \"value\": \"{0}\", \"failure\": \"{2}\"}");
+        patterns.setProperty("restarted", "\"outcome\": \"restarted\", \"value\": \"{0}\", \"reason\": \"{1}\"}");
         patterns.setProperty("restartedStory", "'{'\"story\": '{'\"outcome\": \"restartedStory\", \"value\": \"{0}\", \"reason\": \"{1}\"}}");
         patterns.setProperty("outcomesTableStart", "'{'\"outcomes\": '{'");
         patterns.setProperty("outcomesTableHeadStart", "\"fields\": [");
@@ -201,5 +287,22 @@ public class JsonOutput extends PrintStreamOutput {
         patterns.setProperty("parameterValueEnd", "))");
         patterns.setProperty("parameterValueNewline", "\\n");
         return patterns;
+    }
+
+    private void printSubSteps() {
+        print(format("subSteps", ""));
+    }
+
+    private void startBddStep() {
+        if (subStepsLevel == 0) {
+            printSubSteps();
+        }
+    }
+
+    private String convertParametrizedStep(String step) {
+        return step.replaceAll(PARAMETER_TABLE_START, StringUtils.EMPTY)
+                .replaceAll(PARAMETER_TABLE_END, StringUtils.EMPTY)
+                .replaceAll(PARAMETER_VALUE_END, StringUtils.EMPTY)
+                .replaceAll(PARAMETER_VALUE_START, StringUtils.EMPTY);
     }
 }

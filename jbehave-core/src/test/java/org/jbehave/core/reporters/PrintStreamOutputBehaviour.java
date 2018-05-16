@@ -463,6 +463,8 @@ public class PrintStreamOutputBehaviour extends AbstractOutputBehaviour {
         ExamplesTable table = new ExamplesTable("|money|\n|$30|\n|$50|\n");
         Scenario givenStoryScenario = new Scenario("Commute to bank", Meta.EMPTY);
         String givenStoryStep = "I take a taxi to the bank";
+        String firstStep = "Given money $30";
+        String secondStep = "Given money $50";
         reporter.beforeStory(story, false);
         reporter.beforeScenario(new Scenario("I ask for a loan", Meta.EMPTY));
         reporter.beforeExamples(Collections.singletonList("Given money <money>"), table);
@@ -471,42 +473,50 @@ public class PrintStreamOutputBehaviour extends AbstractOutputBehaviour {
         reporter.givenStories(Collections.singletonList(givenStory.getPath()));
         reporter.beforeStory(givenStory, true);
         reporter.beforeScenario(givenStoryScenario);
+        reporter.beforeStep(givenStoryStep);
         reporter.successful(givenStoryStep);
         reporter.afterScenario();
         reporter.afterStory(true);
         reporter.afterGivenStories();
-        reporter.successful("Given money $30");
+        reporter.beforeStep(firstStep);
+        reporter.successful(firstStep);
         reporter.example(table.getRow(1));
         reporter.beforeGivenStories();
         reporter.givenStories(Collections.singletonList(givenStory.getPath()));
         reporter.beforeStory(givenStory, true);
         reporter.beforeScenario(givenStoryScenario);
+        reporter.beforeStep(givenStoryStep);
         reporter.successful(givenStoryStep);
         reporter.afterScenario();
         reporter.afterStory(true);
         reporter.afterGivenStories();
-        reporter.successful("Given money $50");
+        reporter.beforeStep(secondStep);
+        reporter.successful(secondStep);
         reporter.afterExamples();
         reporter.afterScenario();
         reporter.afterStory(false);
 
         // Then
-        String expected = "{\"path\": \"\\/path\\/to\\/story\", \"title\": \"An interesting story & special chars\","
-                + "\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": \"I ask for a loan\",\"examples\": "
-                + "{\"keyword\": \"Examples:\",\"steps\": [\"Given money <money>\"],\"parameters\": {\"names\": "
-                + "[\"money\"],\"values\": [[\"$30\"],[\"$50\"]]}, \"examples\": [{\"keyword\": \"Example:\", "
-                + "\"value\": \"{money=$30}\",\"givenStories\": {\"keyword\": \"GivenStories:\", "
-                + "\"givenStories\":[{\"parameters\": \"\", \"path\": \"\\/given\\/story1\"}],\"stories\": "
-                + "[{\"path\": \"\\/given\\/story1\", \"title\": \"An interesting story & special chars\","
-                + "\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": \"Commute to bank\",\"steps\": "
-                + "[{\"outcome\": \"successful\", \"value\": \"I take a taxi to the bank\"}]}]}]},\"steps\": "
-                + "[{\"outcome\": \"successful\", \"value\": \"Given money $30\"}]},{\"keyword\": \"Example:\", "
-                + "\"value\": \"{money=$50}\",\"givenStories\": {\"keyword\": \"GivenStories:\", "
-                + "\"givenStories\":[{\"parameters\": \"\", \"path\": \"\\/given\\/story1\"}],\"stories\": "
-                + "[{\"path\": \"\\/given\\/story1\", \"title\": \"An interesting story & special chars\","
-                + "\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": \"Commute to bank\",\"steps\": "
-                + "[{\"outcome\": \"successful\", \"value\": \"I take a taxi to the bank\"}]}]}]},\"steps\": "
-                + "[{\"outcome\": \"successful\", \"value\": \"Given money $50\"}]}]}}]}";
+        String expected = "{\"path\": \"\\/path\\/to\\/story\", \"title\": \"An interesting story & "
+                + "special chars\",\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": \"I " 
+                + "ask for a loan\",\"examples\": {\"keyword\": \"Examples:\",\"steps\": [\"Given" 
+                + " money <money>\"],\"parameters\": {\"names\": [\"money\"],\"values\": " 
+                + "[[\"$30\"],[\"$50\"]]}, \"examples\": [{\"keyword\": \"Example:\", " 
+                + "\"value\": \"{money=$30}\",\"givenStories\": {\"keyword\": \"GivenStories:\", " 
+                + "\"givenStories\":[{\"parameters\": \"\", \"path\": \"\\/given\\/story1\"}]," 
+                + "\"stories\": [{\"path\": \"\\/given\\/story1\", \"title\": \"An interesting " 
+                + "story & special chars\",\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": " 
+                + "\"Commute to bank\",\"steps\": [{\"steps\": [],\"outcome\": \"successful\", " 
+                + "\"value\": \"I take a taxi to the bank\"}]}]}]},\"steps\": [{\"steps\": []," 
+                + "\"outcome\": \"successful\", \"value\": \"Given money $30\"}]},{\"keyword\": " 
+                + "\"Example:\", \"value\": \"{money=$50}\",\"givenStories\": {\"keyword\": " 
+                + "\"GivenStories:\", \"givenStories\":[{\"parameters\": \"\", \"path\": " 
+                + "\"\\/given\\/story1\"}],\"stories\": [{\"path\": \"\\/given\\/story1\", " 
+                + "\"title\": \"An interesting story & special chars\",\"scenarios\": [{\"keyword\": " 
+                + "\"Scenario:\", \"title\": \"Commute to bank\",\"steps\": [{\"steps\": []," 
+                + "\"outcome\": \"successful\", \"value\": \"I take a taxi to the bank\"}]}]}]}," 
+                + "\"steps\": [{\"steps\": [],\"outcome\": \"successful\", \"value\": \"Given " 
+                + "money $50\"}]}]}}]}";
 
         assertThat(dos2unix(out.toString()), equalTo(expected));
     }
@@ -530,6 +540,7 @@ public class PrintStreamOutputBehaviour extends AbstractOutputBehaviour {
         reporter.beforeScenario(new Scenario("Normal scenario", Meta.EMPTY));
         reporter.beforeExamples(Collections.singletonList("Then '<expected>' is equal to '<actual>'"), emptyExamplesTable);
         reporter.example(table.getRow(0));
+        reporter.beforeStep("Then '((some data))' is ((equal to)) '((some data))'");
         reporter.successful("Then '((some data))' is ((equal to)) '((some data))'");
         reporter.afterExamples();
         reporter.afterScenario();
@@ -545,11 +556,120 @@ public class PrintStreamOutputBehaviour extends AbstractOutputBehaviour {
                 + "{\"keyword\": \"Lifecycle:\"},\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": \"Normal "
                 + "scenario\",\"examples\": {\"keyword\": \"Examples:\",\"steps\": [\"Then '<expected>' is equal to "
                 + "'<actual>'\"],\"parameters\": {\"names\": [],\"values\": []}, \"examples\": [{\"keyword\": "
-                + "\"Example:\", \"value\": \"{actual=some data, expected=some data}\",\"steps\": [{\"outcome\": "
+                + "\"Example:\", \"value\": \"{actual=some data, expected=some data}\",\"steps\": [{\"steps\": [],\"outcome\": "
                 + "\"successful\", \"value\": \"Then '((some data))' is ((equal to)) '((some data))'\"}]}]}},"
                 + "{\"keyword\": \"Scenario:\", \"title\": \"Some empty scenario\",\"examples\": {\"keyword\": "
                 + "\"Examples:\",\"steps\": [],\"parameters\": {\"names\": [],\"values\": []}, \"examples\": "
                 + "[{\"keyword\": \"Example:\", \"value\": \"{actual=some data, expected=some data}\"}]}}]}";
+
+        assertThat(dos2unix(out.toString()), equalTo(expected));
+    }
+
+    @Test
+    public void shouldReportEventsToJsonOutputNestedSteps()
+    {
+        // Given
+        OutputStream out = new ByteArrayOutputStream();
+        StoryReporter reporter = new JsonOutput(new PrintStream(out), new Properties(), new LocalizedKeywords());
+
+        // When
+        Story story = new Story("/path/to/story", new Description("Nested steps"), null,
+                null, null, new ArrayList<Scenario>());
+        String mainStep ="When I find = 2 elements by By.xpath(//div[@id='disappear-element' or "
+                + "@id='disappear-frame']) and for each element do\n"
+                + "|step                                                                    |\n"
+                + "|When I click on an element by the xpath './/button'                |";
+        String parametrizedMainStep = "When I find ｟=｠ ｟2｠ elements by ｟By.xpath(//div[@id='disappear-element' or "
+                + "@id='disappear-frame'])｠ and for each element do\n"
+                + "［|step                                                                    |\n"
+                + "|When I click on an element by the xpath './/button'                |］";
+        String nestedStep = "When I click on an element by the xpath './/button'";
+        String regularStep = "Given I am on the main application page";
+
+        reporter.beforeStory(story, false);
+        reporter.beforeScenario(new Scenario("Nested steps scenario", Meta.EMPTY));
+        reporter.beforeStep(regularStep);
+        reporter.successful(regularStep);
+        reporter.beforeStep(mainStep);
+        reporter.beforeStep(null);
+        reporter.successful(nestedStep);
+        reporter.beforeStep(null);
+        reporter.successful(nestedStep);
+        reporter.successful(parametrizedMainStep);
+        reporter.beforeStep("When I crawl the site with URL '${mainPageURL}' and for each page do\n||");
+        reporter.beforeStep(null);
+        reporter.successful("When I crawl the site with URL '${mainPageURL}' and for each page do\n［||］");
+
+        reporter.afterScenario();
+        reporter.afterStory(false);
+
+        // Then
+        String expected = "{\"path\": \"\\/path\\/to\\/story\", \"title\": \"Nested steps\","
+                + "\"scenarios\": [{\"keyword\": \"Scenario:\", \"title\": \"Nested steps "
+                + "scenario\",\"steps\": [{\"steps\": [],\"outcome\": \"successful\", "
+                + "\"value\": \"Given I am on the main application page\"},{\"steps\": [{\"steps\": "
+                + "[],\"outcome\": \"successful\", \"value\": \"When I click on an element by the xpath"
+                + " '.\\/\\/button'\"},{\"steps\": [],\"outcome\": \"successful\", \"value\": "
+                + "\"When I click on an element by the xpath '.\\/\\/button'\"}],\"outcome\": "
+                + "\"successful\", \"value\": \"When I find ((=)) ((2)) elements by ((By.xpath"
+                + "(\\/\\/div[@id='disappear-element' or @id='disappear-frame']))) and for each element do\\n"
+                + "\\uFF3B|step                                                                    |\\n"
+                + "|When I click on an element by the xpath '.\\/\\/button'                |\\uFF3D\"},"
+                + "{\"steps\": [{\"steps\": []}],\"outcome\": \"successful\", \"value\": \"When"
+                + " I crawl the site with URL '${mainPageURL}' and for each page do\\n\\uFF3B||\\uFF3D\"}]}]}";
+
+        assertThat(dos2unix(out.toString()), equalTo(expected));
+    }
+
+    @Test
+    public void shouldReportEventsToJsonOutputPendingSteps()
+    {
+        // Given
+        OutputStream out = new ByteArrayOutputStream();
+        StoryReporter reporter = new JsonOutput(new PrintStream(out), new Properties(), new LocalizedKeywords());
+
+        // When
+        Story story = new Story("/path/to/story", new Description("Pending steps"), null,
+                null, null, new ArrayList<Scenario>());
+        String mainStep ="When I find = 2 elements by By.xpath(//div[@id='disappear-element' or "
+                + "@id='disappear-frame']) and for each element do\r\n"
+                + "|step|\r\n"
+                + "|When I do something new|";
+        String parametrizedMainStep = "When I find ｟=｠ ｟2｠ elements by ｟By.xpath(//div[@id='disappear-element' or "
+                + "@id='disappear-frame'])｠ and for each element do\r\n"
+                + "［|step|\r\n"
+                + "|When I do something new|］";
+        String pendingStep = "When I do something new";
+        String regularStep = "Given I am on the main application page";
+
+        reporter.beforeStory(story, false);
+        reporter.beforeScenario(new Scenario("Pending steps scenario", Meta.EMPTY));
+        reporter.beforeStep(regularStep);
+        reporter.successful(regularStep);
+        reporter.beforeStep(mainStep);
+        reporter.beforeStep(null);
+        reporter.pending(pendingStep);
+        reporter.beforeStep(null);
+        reporter.pending(pendingStep);
+        reporter.successful(parametrizedMainStep);
+        reporter.pending(pendingStep);
+        reporter.pendingMethods(Collections.singletonList("@When(\"I do something new\")\n@Pending\npublic void"
+                + " whenIDoSomethingNew() {\n  // PENDING\n}\n"));
+        reporter.afterScenario();
+        reporter.afterStory(false);
+
+        // Then
+        String expected = "{\"path\": \"\\/path\\/to\\/story\", \"title\": \"Pending steps\",\"scenarios\": "
+                + "[{\"keyword\": \"Scenario:\", \"title\": \"Pending steps scenario\",\"steps\": [{\"steps\": [],"
+                + "\"outcome\": \"successful\", \"value\": \"Given I am on the main application page\"},{\"steps\": "
+                + "[{\"steps\": [],\"outcome\": \"pending\", \"keyword\": \"PENDING\", \"value\": \"When I do "
+                + "something new\"},{\"steps\": [],\"outcome\": \"pending\", \"keyword\": \"PENDING\", \"value\": "
+                + "\"When I do something new\"}],\"outcome\": \"successful\", \"value\": \"When I find ((=)) ((2)) "
+                + "elements by ((By.xpath(\\/\\/div[@id='disappear-element' or @id='disappear-frame']))) and for each"
+                + " element do\\r\\n\\uFF3B|step"
+                + "|\\r\\n|When I do something new|\\uFF3D\"},{\"steps\": [],\"outcome\": \"pending\", \"keyword\": "
+                + "\"PENDING\", \"value\": \"When I do something new\"}],\"pendingMethods\": [\"@When(\\\"I do "
+                + "something new\\\")\\n@Pending\\npublic void whenIDoSomethingNew() {\\n  \\/\\/ PENDING\\n}\\n\"]}]}";
 
         assertThat(dos2unix(out.toString()), equalTo(expected));
     }
